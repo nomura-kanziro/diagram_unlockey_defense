@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메이플 운빨 디펜스 (프로토타입)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&amp;display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(#0a0a1f, #1a0033);
+            color: #fff;
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        .game-title {
+            font-size: 4.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff00aa, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 0, 170, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 15px 50px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(#ff00aa, #cc0088);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #333;
+            color: #ddd;
+            border: 2px solid #666;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,0,170,0.4);
+        }
+        
+        .game-screen {
+            display: none;
+            flex: 1;
+            position: relative;
+        }
+        
+        .top-ui {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            background: linear-gradient(#1a0033, #0f0022);
+            padding: 6px 12px;
+            border-bottom: 3px solid #ff00aa;
+            box-shadow: 0 3px 12px rgba(255, 0, 170, 0.3);
+            z-index: 50;
+            gap: 8px;
+            height: 42px;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 10px;
+            border-radius: 15px;
+            border: 1px solid #555;
+            white-space: nowrap;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #00ffff;
+            font-size: 0.95rem;
+        }
+        
+        .main-area {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        
+        #game-canvas {
+            border: 4px solid #ff00aa;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(255, 0, 170, 0.6);
+            background: #0a0a1f;
+        }
+        
+        .sidebar {
+            width: 240px;
+            background: rgba(15, 15, 35, 0.95);
+            padding: 10px;
+            overflow-y: auto;
+            border-left: 3px solid #00ffff;
+            font-size: 0.85rem;
+            max-height: 100vh;
+        }
+        
+        .unit-list {
+            margin-bottom: 20px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+        
+        .unit-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .unit-list::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 3px;
+        }
+        
+        .unit-card {
+            background: #1f1f3a;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 2px solid #444;
+            position: relative;
+        }
+        
+        .unit-card.rare { border-color: #00ff88; }
+        .unit-card.epic { border-color: #aa00ff; }
+        .unit-card.legendary { border-color: #ffcc00; }
+        .unit-card.mythic { border-color: #ff0000; }
+        
+        .unit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .unit-name {
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        
+        .unit-stats {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        
+        .unit-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 6px;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .upgrade-btn { background: #00aa66; color: white; }
+        .sell-btn { background: #aa3333; color: white; }
+        
+        .action-panel {
+            background: #1a1a2e;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .action-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #00ffff;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+        
+        .summon-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.3rem;
+            background: linear-gradient(#ffaa00, #cc8800);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .exchange-btn {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .exchange-btn.legend { background: #ffaa00; }
+        .exchange-btn.mythic { background: #ff3300; }
+        .exchange-btn.heaven { background: #00cc66; }
+        
+        .log {
+            height: 120px;
+            background: #111;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.8rem;
+            overflow-y: auto;
+            color: #0f0;
+            font-family: monospace;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+        
+        .modal-content {
+            background: #1a1a2e;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            border: 3px solid #ff00aa;
+        }
+        
+        .tier {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .normal { background: #fff; color: #000; }
+        .rare { background: #00ff88; color: #000; }
+        .advanced { background: #aa00ff; color: #fff; }
+        .relic { background: #ff8800; color: #000; }
+        .epic { background: #00aaff; color: #fff; }
+        .legend { background: #ffcc00; color: #000; }
+        .mythic { background: #ff0000; color: #fff; }
+        .heaven { background: #00cc66; color: #000; }
+        .origin { background: #00ffff; color: #000; }
+        .apocalypse { background: #666; color: #fff; }
+        .mobius { background: #88ddff; color: #000; }
+    </style>
+</head>
+<body>
+    <!-- 시작 화면 -->
+    <div id="start-screen" class="start-screen">
+        <div style="text-align: center;">
+            <h1 class="game-title">메이플 운빨 디펜스</h1>
+            <p style="font-size: 1.5rem; color: #aaa; margin-bottom: 40px;">운으로 뽑고, 전략으로 버티는 디펜스</p>
+            
+            <button onclick="startGame()" class="btn btn-primary">게임 시작</button>
+            <button onclick="showExplanation()" class="btn btn-secondary">게임 설명</button>
+        </div>
+    </div>
+
+    <!-- 게임 화면 -->
+    <div id="game-screen" class="game-screen">
+        <!-- 상단 UI -->
+        <div class="top-ui">
+            <div class="stat">
+                <span>💰 골드:</span>
+                <span id="gold-display" class="stat-value">30</span>
+            </div>
+            <div class="stat">
+                <span>📊 레벨:</span>
+                <span id="level-display" class="stat-value">1</span>
+            </div>
+            <div class="stat">
+                <span>⏱️ 라운드 시간:</span>
+                <span id="time-display" class="stat-value">90</span>
+            </div>
+            <div class="stat">
+                <span>👾 적 수:</span>
+                <span id="enemy-count" class="stat-value">0/100</span>
+            </div>
+            <div>
+                <button onclick="nextRound()" style="padding:8px 20px; background:#00aa66; color:white; border:none; border-radius:8px; font-weight:bold;">다음 라운드</button>
+            </div>
+            <div style="display:flex; gap:4px; align-items:center;">
+                <span style="font-size:0.75rem; color:#888;">속도:</span>
+                <button onclick="setGameSpeed(1)" style="padding:4px 10px; background:#555; color:white; border:none; border-radius:6px; font-size:0.75rem;">1x</button>
+                <button onclick="setGameSpeed(2)" style="padding:4px 10px; background:#ff8800; color:white; border:none; border-radius:6px; font-size:0.75rem;">2x</button>
+                <button onclick="setGameSpeed(4)" style="padding:4px 10px; background:#ff3300; color:white; border:none; border-radius:6px; font-size:0.75rem;">4x</button>
+                <button onclick="setGameSpeed(6)" style="padding:4px 10px; background:#cc0000; color:white; border:none; border-radius:6px; font-size:0.75rem;">6x</button>
+            </div>
+        </div>
+
+        <div class="main-area">
+            <!-- 캔버스 -->
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:20px;">
+                <canvas id="game-canvas" width="700" height="700"></canvas>
+            </div>
+
+            <!-- 오른쪽 사이드바 -->
+            <div class="sidebar">
+                <!-- 소환 -->
+                <div class="action-panel">
+                    <div class="action-title">유닛 소환 (10원)</div>
+                    <button onclick="summonUnit()" class="summon-btn">🎲 랜덤 소환</button>
+                    <div style="font-size:0.8rem; color:#888; text-align:center;">확률에 따라 고등급 유닛 등장!</div>
+
+                    <button onclick="summonTenTimes()" class="summon-btn" style="background:#ff8800; margin-top:8px; font-size:0.9rem;">
+                        🎁 10연차 소환 (100원)
+                    </button>
+                    <div style="font-size:0.75rem; color:#ffcc00; text-align:center;">11개 소환 + 1개 공짜!</div>
+                </div>
+
+                <!-- 강화 -->
+                <div class="action-panel">
+                    <div class="action-title">유닛 강화</div>
+                    
+                    <button onclick="massUpgradeSingle()" class="exchange-btn" style="background:#00aa66;">
+                        1단위 강화 (10원, +20%씩 증가)
+                    </button>
+                    
+                    <button onclick="massUpgradeFive()" class="exchange-btn" style="background:#ff8800;">
+                        5단위 강화 (10원, 20% 확률)
+                    </button>
+                    
+                    <button onclick="activateGlobalBuff()" id="buff-btn" class="exchange-btn" style="background:#aa00ff;">
+                        버프 (전체 데미지 300%, 30원, 50초 쿨)
+                    </button>
+                    <div id="buff-cooldown" style="font-size:0.7rem; color:#ffaa00; text-align:center; margin-top:4px;"></div>
+                </div>
+
+                <!-- 승천 기능상자 -->
+                <div class="action-panel">
+                    <div class="action-title">승천 (기능상자)</div>
+                    
+                    <button onclick="ascendFromBox('epic')" class="exchange-btn" style="background:#00aaff; margin:4px 0;">
+                        서사 → 전설 (100원, 100%)
+                    </button>
+                    
+                    <button onclick="ascendFromBox('legendary')" class="exchange-btn" style="background:#ffcc00; color:#000; margin:4px 0;">
+                        전설 → 신화 (200원, 75%)
+                    </button>
+                    
+                    <button onclick="ascendFromBox('mythic')" class="exchange-btn" style="background:#ff0000; margin:4px 0;">
+                        신화 → 대천 (250원, 60%)
+                    </button>
+                    
+                    <div style="font-size:0.7rem; color:#888; text-align:center; margin-top:6px;">
+                        해당 등급 유닛 1개를 승천시킵니다.
+                    </div>
+                </div>
+
+                <!-- 유닛 목록 -->
+                <div class="action-panel">
+                    <div class="action-title">소환된 유닛 (<span id="unit-count">0</span>/50)</div>
+                    <div id="unit-list" class="unit-list"></div>
+                </div>
+
+                <!-- 소환 확률 (오른쪽 하단) -->
+                <div class="action-panel" style="padding:10px; font-size:0.75rem;">
+                    <div class="action-title" style="margin-bottom:6px;">🎲 소환 확률</div>
+                    <div id="prob-list" style="line-height:1.35; color:#ccc;"></div>
+                </div>
+
+                <!-- 적 체력 정보 -->
+                <div class="action-panel" style="padding:10px; font-size:0.75rem;">
+                    <div class="action-title" style="margin-bottom:6px;">👾 적 체력</div>
+                    <div id="enemy-health-info" style="line-height:1.4; color:#ffaa00;"></div>
+                </div>
+
+                <!-- 로그 -->
+                <div class="action-panel">
+                    <div class="action-title">게임 로그</div>
+                    <div id="log" class="log"></div>
+                </div>
+            </div>
+
+            <!-- 왼쪽 아래 전용 게임 로그 박스 -->
+            <div id="bottom-log-panel" style="
+                position: absolute;
+                bottom: 15px;
+                left: 15px;
+                width: 380px;
+                height: 160px;
+                background: rgba(10, 10, 30, 0.95);
+                border: 2px solid #00ff88;
+                border-radius: 12px;
+                padding: 10px;
+                overflow-y: auto;
+                font-family: monospace;
+                font-size: 0.8rem;
+                color: #0f0;
+                box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+                z-index: 60;
+            ">
+                <div style="color:#00ff88; font-weight:bold; margin-bottom:6px; font-size:0.85rem;">📜 게임 로그</div>
+                <div id="bottom-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 설명 모달 -->
+    <div id="explanation-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color:#ff00aa; text-align:center;">게임 설명</h2>
+            <div style="line-height:1.7; font-size:0.95rem;">
+                <p><strong>목표:</strong> 200레벨까지 클리어하세요!</p>
+                <p><strong>기본 규칙:</strong></p>
+                <ul>
+                    <li>외곽 원형 라인에 적이 빙빙 돕니다. 적이 100마리 이상 쌓이면 패배!</li>
+                    <li>안쪽 원 안에 유닛을 소환해 적을 처치하세요.</li>
+                    <li>유닛은 <strong>랜덤 소환</strong> (10원)으로만 얻을 수 있습니다. (극악의 운빨)</li>
+                    <li>고등급 유닛일수록 공격속도가 빠르고 데미지가 강합니다.</li>
+                    <li>50레벨부터 적에게 방어력이 생깁니다 (5% 감소, 방어무시 유닛 제외).</li>
+                </ul>
+                <p><strong>주요 행동:</strong></p>
+                <ul>
+                    <li><strong>강화:</strong> 유닛 레벨업 (최대 200레벨, 비용 점점 증가)</li>
+                    <li><strong>판매:</strong> 하위~서사등급만 가능</li>
+                    <li><strong>교환:</strong> 전설 이상 유닛을 더 높은 등급으로 바꿀 수 있음 (확률 있음)</li>
+                </ul>
+                <p><strong>특수 구간:</strong></p>
+                <ul>
+                    <li>보스 라운드 (30,65,87...): 보스 1마리, 체력 15배, 시간 5분</li>
+                    <li>데스매치 (175~198): 8마리 강적, 5분 제한</li>
+                    <li>199~200레벨: 최종 보스</li>
+                </ul>
+                <p style="color:#ffaa00; font-weight:bold;">※ 이 프로토타입은 핵심 메커니즘을 구현한 버전입니다. 실제 게임과 유사하게 즐겨보세요!</p>
+            </div>
+            <button onclick="closeExplanation()" style="margin-top:20px; width:100%; padding:12px; background:#ff00aa; color:white; border:none; border-radius:10px; font-size:1.1rem;">닫기</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 게임 변수 ====================
+        let canvas, ctx;
+        let gold = 30;
+        let currentLevel = 1;
+        let timeLeft = 30;          // 초기 30초 대기
+        let roundTime = 90;
+        let enemies = [];
+        let units = [];
+        let gameRunning = false;
+        let lastTime = Date.now();
+        let enemyDefense = 0;           // 적 방어력 (1당 데미지 0.5% 감소)
+        let roundStartTime = Date.now();
+        let spawnInterval = null;
+        let logMessages = [];
+        let isPrepPhase = true;     // 시작 전 대기 상태
+        let gameSpeed = 1;          // 1x, 2x, 4x 속도
+        let globalDamageMultiplier = 1; // 버프 적용 시 3
+        let lastBuffTime = 0;           // 버프 쿨타임 관리
+        let globalLevelBonus = 0;       // 전체 강화 보너스 (미래 소환 유닛에도 적용)
+        let currentEnhanceCost = 10;    // 현재 강화 비용 (사용할 때마다 20% 증가)
+        
+        const CENTER_X = 350;
+        const CENTER_Y = 350;
+        const OUTER_RADIUS = 280;
+        const INNER_RADIUS = 140;
+        const SPAWN_PORTAL_ANGLE = -Math.PI / 2;  // 위쪽 (12시 방향)
+
+        // 유닛 등급 데이터
+        const TIERS = {
+            normal: { name: "일반", color: "#ffffff", baseDmg: 5, inc: 3, prob: 47, sellable: true, class: "normal" },
+            rare: { name: "레어", color: "#00ff88", baseDmg: 10, inc: 6, prob: 29, sellable: true, class: "rare" },
+            advanced: { name: "고급", color: "#aa00ff", baseDmg: 18, inc: 9, prob: 15, sellable: true, class: "advanced" },
+            relic: { name: "유물", color: "#ff8800", baseDmg: 26, inc: 14, prob: 5, sellable: true, class: "relic" },
+            epic: { name: "서사", color: "#00aaff", baseDmg: 33, inc: 19, prob: 2.2, sellable: true, class: "epic" },
+            legendary: { name: "전설", color: "#ffcc00", baseDmg: 70, inc: 35, prob: 1.1, sellable: false, class: "legendary", aoe: true },
+            seongryeong: { name: "성령", color: "#00ffcc", baseDmg: 35, inc: 15, prob: 0.5, sellable: false, class: "seongryeong", aoe: true, ignoreDef: true },
+            mythic: { name: "신화", color: "#ff0000", baseDmg: 155, inc: 85, prob: 0.1, sellable: false, class: "mythic", aoe: true, wide: true },
+            heaven: { name: "대천", color: "#00cc66", baseDmg: 180, inc: 100, prob: 0.065, sellable: false, class: "heaven", aoe: true, wide: true },
+            origin: { name: "태초", color: "#00ffff", baseDmg: 250, inc: 150, prob: 0.025, sellable: false, class: "origin", aoe: true, infinite: true },
+            apocalypse: { name: "종말", color: "#666666", baseDmg: 4000, inc: 0, prob: 0.009, sellable: false, class: "apocalypse", aoe: true, infinite: true, ignoreDef: true },
+            mobius: { name: "뫼비우스", color: "#88ddff", baseDmg: 150, inc: 100, prob: 0.001, sellable: false, class: "mobius", aoe: true, ignoreDef: true }
+        };
+
+        const TIER_ORDER = ['normal', 'rare', 'advanced', 'relic', 'epic', 'legendary', 'seongryeong', 'mythic', 'heaven', 'origin', 'apocalypse', 'mobius'];
+
+        // 합성 매핑 (3개 → 다음 등급 1개)
+        const SYNTHESIS_MAP = {
+            'normal': 'rare',
+            'rare': 'advanced',
+            'advanced': 'relic',
+            'relic': 'epic',
+            'epic': 'legendary',
+            'legendary': 'mythic',
+            'mythic': 'heaven',
+            'heaven': 'origin'
+            // 대천(Heaven) 3개 → 태초(Origin) 가능, 그 이상은 안 됨
+        };
+
+        // 종말 (Apocalypse) 히든 조합 재료
+        const APOCALYPSE_RECIPE = {
+            'origin': 1,       // 태초
+            'heaven': 2,       // 대천
+            'mythic': 2,       // 신화
+            'seongryeong': 3   // 성령 (전설과 신화 사이)
+        };
+
+        // ==================== 유틸리티 ====================
+        function addLog(msg) {
+            const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const formatted = `[${time}] ${msg}`;
+            
+            // 기존 오른쪽 로그 (있는 경우)
+            const logEl = document.getElementById('log');
+            if (logEl) {
+                logMessages.unshift(formatted);
+                if (logMessages.length > 12) logMessages.pop();
+                logEl.innerHTML = logMessages.join('<br>');
+            }
+            
+            // 새 왼쪽 아래 전용 로그 박스
+            const bottomLog = document.getElementById('bottom-log');
+            if (bottomLog) {
+                bottomLog.innerHTML = formatted + '<br>' + bottomLog.innerHTML;
+                // 최대 줄 수 제한
+                const lines = bottomLog.innerHTML.split('<br>');
+                if (lines.length > 15) {
+                    bottomLog.innerHTML = lines.slice(0, 15).join('<br>');
+                }
+            }
+        }
+
+        function updateProbabilityList() {
+            const container = document.getElementById('prob-list');
+            if (!container) return;
+            
+            let html = '';
+            TIER_ORDER.forEach(tierKey => {
+                const tier = TIERS[tierKey];
+                if (tier.prob > 0) {
+                    html += `<div style="display:flex; justify-content:space-between;">
+                        <span style="color:${tier.color}">${tier.name}</span>
+                        <span style="color:#aaa">${tier.prob}%</span>
+                    </div>`;
+                }
+            });
+            container.innerHTML = html;
+        }
+
+        function updateEnemyHealthInfo() {
+            const container = document.getElementById('enemy-health-info');
+            if (!container) return;
+
+            const baseHealth = 10 * Math.pow(1.1, currentLevel - 1);
+            let html = `일반 적: <strong>${Math.floor(baseHealth)}</strong>`;
+
+            // 현재 필드에 보스가 있는지 확인
+            const bossOnField = enemies.find(e => e.isBoss || e.isDeathmatch);
+
+            if (bossOnField) {
+                // 보스가 필드에 있으면 현재 체력 / 최대 체력 표시
+                html += `<br>보스: <strong style="color:#ff6666">${bossOnField.health} / ${bossOnField.maxHealth}</strong>`;
+            } else {
+                // 보스가 없으면 예상 스폰 체력 표시
+                const isBossLevel = [30,65,87,104,122,145,174,180,190,195,199,200].includes(currentLevel);
+                const isDeathmatch = currentLevel >= 175 && currentLevel <= 198;
+
+                if (isBossLevel || isDeathmatch) {
+                    let bossMult = 10;
+                    if (currentLevel === 200) bossMult = 14;
+                    else if (currentLevel === 199) bossMult = 12;
+                    else if (currentLevel >= 175) bossMult = 10; // 데스매치 보스
+
+                    const bossHealth = Math.floor(baseHealth * bossMult);
+                    html += `<br>보스 (예상): <strong style="color:#ff6666">${bossHealth}</strong> <span style="color:#888">(${bossMult}배)</span>`;
+                }
+            }
+
+            if (typeof enemyDefense !== 'undefined') {
+                html += `<br>방어력: <strong>${enemyDefense}</strong> <span style="color:#888">(${enemyDefense * 0.5}% 감소)</span>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function updateUI() {
+            document.getElementById('gold-display').textContent = gold.toFixed(1);
+            document.getElementById('level-display').textContent = currentLevel;
+            
+            const timeEl = document.getElementById('time-display');
+            if (isPrepPhase) {
+                timeEl.textContent = timeLeft + " (대기)";
+                timeEl.style.color = "#ffaa00";
+            } else {
+                timeEl.textContent = timeLeft;
+                timeEl.style.color = "#00ffff";
+            }
+            
+            document.getElementById('enemy-count').textContent = `${enemies.length}/100`;
+            document.getElementById('unit-count').textContent = units.length;
+            updateProbabilityList();
+            updateEnemyHealthInfo();
+        }
+
+        function getTierFromProb() {
+            const rand = Math.random() * 100;
+            let cumulative = 0;
+            
+            for (let tierKey of TIER_ORDER) {
+                cumulative += TIERS[tierKey].prob;
+                if (rand <= cumulative) {
+                    return tierKey;
+                }
+            }
+            return 'normal';
+        }
+
+        function calculateDamage(unit) {
+            const tier = TIERS[unit.tier];
+            let dmg = tier.baseDmg + (unit.level - 1) * tier.inc;
+            dmg = Math.floor(dmg * globalDamageMultiplier);
+            return dmg;
+        }
+
+        // 승천 가능 여부 및 정보
+        function getAscensionInfo(unit) {
+            if (unit.tier === 'epic') {
+                return { target: 'legendary', cost: 100, rate: 100, name: '전설' };
+            } else if (unit.tier === 'legendary') {
+                return { target: 'mythic', cost: 125, rate: 50, name: '신화' };
+            } else if (unit.tier === 'mythic') {
+                return { target: 'heaven', cost: 150, rate: 35, name: '대천' };
+            }
+            return null;
+        }
+
+        function getTierCount(tierKey) {
+            return units.filter(u => u.tier === tierKey).length;
+        }
+
+        function canPerformApocalypseCombo() {
+            return getTierCount('origin') >= 1 &&
+                   getTierCount('heaven') >= 2 &&
+                   getTierCount('mythic') >= 2 &&
+                   getTierCount('seongryeong') >= 3;  // 성령 (서사 아님!)
+        }
+
+        function canPerformMobiusCombo() {
+            return getTierCount('apocalypse') >= 2 &&
+                   getTierCount('origin') >= 2 &&
+                   globalDamageMultiplier === 3;  // 버프 활성화 상태에서만
+        }
+
+        function getAttackInterval(unit) {
+            const baseInterval = 1000; // 1초
+            const reduction = (unit.level - 1) * 60; // 0.06초 = 60ms
+            return Math.max(200, baseInterval - reduction);
+        }
+
+        // ==================== 유닛 관리 ====================
+        function summonUnit() {
+            if (units.length >= 50) {
+                addLog("⚠️ 유닛 최대 수 (50마리)에 도달했습니다!");
+                return;
+            }
+            
+            if (gold < 10) {
+                addLog("골드가 부족합니다!");
+                return;
+            }
+            
+            gold -= 10;
+            _createRandomUnit(true); // true = update UI
+        }
+
+        // 내부 유닛 생성 헬퍼 (골드 차감 없음)
+        function _createRandomUnit(updateUIAfter = true) {
+            const tierKey = getTierFromProb();
+            const tier = TIERS[tierKey];
+            
+            const angle = Math.random() * Math.PI * 2;
+            const dist = Math.random() * (INNER_RADIUS - 30) + 30;
+            const x = CENTER_X + Math.cos(angle) * dist;
+            const y = CENTER_Y + Math.sin(angle) * dist;
+            
+            const newUnit = {
+                id: Date.now(),
+                tier: tierKey,
+                level: 1 + globalLevelBonus,
+                x: x,
+                y: y,
+                lastAttack: Date.now(),
+                color: tier.color
+            };
+            
+            units.push(newUnit);
+            addLog(`✨ ${tier.name} 유닛 소환! (Lv.${newUnit.level})`);
+            
+            if (tier.prob < 1) {
+                addLog(`🎉 대박! ${tier.name} 등급이 나왔습니다!`);
+            }
+            
+            if (updateUIAfter) {
+                updateUI();
+                renderUnitsList();
+            }
+        }
+
+        function summonTenTimes() {
+            if (units.length + 11 > 50) {
+                addLog("⚠️ 유닛 최대 수를 초과합니다! (11마리 추가 불가)");
+                return;
+            }
+            
+            if (gold < 100) {
+                addLog("골드가 부족합니다! (100원 필요)");
+                return;
+            }
+            
+            gold -= 100;
+            addLog("🎁 10연차 소환 시작! (총 11개 소환)");
+            
+            for (let i = 0; i < 11; i++) {
+                if (units.length >= 50) break;
+                _createRandomUnit(false); // UI는 마지막에 한 번만 업데이트
+            }
+            
+            updateUI();
+            renderUnitsList();
+        }
+
+        function ascendUnit(unitId) {
+            const unit = units.find(u => u.id === unitId);
+            if (!unit) return;
+            
+            const currentTier = unit.tier;
+            let targetTier = null;
+            let cost = 0;
+            let successRate = 100;
+            
+            if (currentTier === 'epic') {
+                targetTier = 'legendary';
+                cost = 100;
+                successRate = 100;
+            } else if (currentTier === 'legendary') {
+                targetTier = 'mythic';
+                cost = 125;
+                successRate = 50;
+            } else if (currentTier === 'mythic') {
+                targetTier = 'heaven';
+                cost = 150;
+                successRate = 35;
+            } else {
+                addLog("이 등급은 승천할 수 없습니다!");
+                return;
+            }
+            
+            if (gold < cost) {
+                addLog("승천 비용이 부족합니다!");
+                return;
+            }
+            
+            gold -= cost;
+            
+            if (Math.random() * 100 <= successRate) {
+                // 승천 성공
+                const oldName = TIERS[currentTier].name;
+                const newName = TIERS[targetTier].name;
+                
+                unit.tier = targetTier;
+                unit.color = TIERS[targetTier].color;
+                // 레벨 유지 (강화 보너스 적용된 상태로 승천)
+                
+                addLog(`🌟 ${oldName} → ${newName} 승천 성공!`);
+                updateUI();
+                renderUnitsList();
+            } else {
+                addLog(`승천 실패... (${TIERS[targetTier].name} 확률 ${successRate}%)`);
+            }
+        }
+
+        // ==================== 대량 강화 시스템 ====================
+        function massUpgradeSingle() {
+            if (units.length === 0) {
+                addLog("소환된 유닛이 없습니다!");
+                return;
+            }
+            
+            const cost = currentEnhanceCost;
+            
+            if (gold < cost) {
+                addLog(`골드가 부족합니다! (필요: ${cost}원)`);
+                return;
+            }
+            
+            gold -= cost;
+            
+            units.forEach(unit => {
+                unit.level++;
+            });
+            globalLevelBonus++;
+            
+            currentEnhanceCost += 2;
+            
+            addLog(`✅ 1레벨 강화 완료! (비용: ${cost}원) → 다음 비용 ${currentEnhanceCost}원 | 보너스 +${globalLevelBonus}`);
+            updateUI();
+            renderUnitsList();
+        }
+
+        function massUpgradeFive() {
+            if (units.length === 0) {
+                addLog("소환된 유닛이 없습니다!");
+                return;
+            }
+            
+            const cost = currentEnhanceCost;
+            
+            if (gold < cost) {
+                addLog(`골드가 부족합니다! (필요: ${cost}원)`);
+                return;
+            }
+            
+            // 비용은 무조건 소모 (도박)
+            gold -= cost;
+            
+            // 실패해도 최소 +1 강화 보장 (사용자 요청)
+            units.forEach(unit => {
+                unit.level += 1;
+            });
+            globalLevelBonus += 1;
+            
+            if (Math.random() * 100 <= 20) {
+                // 성공 시 추가 +4 (총 +5)
+                units.forEach(unit => {
+                    unit.level += 4;
+                });
+                globalLevelBonus += 4;
+                addLog(`🎉 5단위 강화 성공! (총 +5, 비용 ${cost}원 소모) → 다음 비용 ${currentEnhanceCost}원 | 보너스 +${globalLevelBonus}`);
+                currentEnhanceCost = Math.floor(currentEnhanceCost * 1.2);
+            } else {
+                addLog(`5단위 강화 실패... (20% 확률, 비용 ${cost}원 소모) → 최소 +1 강화 적용`);
+                currentEnhanceCost += 2;
+            }
+            
+            updateUI();
+            renderUnitsList();
+            renderUnitsList();
+        }
+
+        function activateGlobalBuff() {
+            const now = Date.now();
+            const cooldown = 50000; // 50초
+            
+            if (now - lastBuffTime < cooldown) {
+                const remaining = Math.ceil((cooldown - (now - lastBuffTime)) / 1000);
+                addLog(`버프 쿨타임 중... ${remaining}초 남음`);
+                return;
+            }
+            
+            if (gold < 30) {
+                addLog("골드가 부족합니다! (30원 필요)");
+                return;
+            }
+            
+            gold -= 30;
+            globalDamageMultiplier = 3;
+            lastBuffTime = now;
+            
+            addLog("🌟 전체 데미지 300% 버프 활성화! (50초 지속)");
+            updateUI();
+            renderUnitsList();  // 히든 조합 버튼(뫼비우스 등) 상태를 즉시 업데이트
+            
+            // 50초 후 버프 해제
+            setTimeout(() => {
+                globalDamageMultiplier = 1;
+                addLog("버프 효과 종료");
+                updateUI();
+                renderUnitsList();
+            }, 50000);
+            
+            // 쿨타임 표시 업데이트
+            updateBuffCooldown();
+        }
+
+        function updateBuffCooldown() {
+            const cooldownEl = document.getElementById('buff-cooldown');
+            if (!cooldownEl) return;
+            
+            const interval = setInterval(() => {
+                const now = Date.now();
+                const remaining = Math.max(0, Math.ceil((50000 - (now - lastBuffTime)) / 1000));
+                
+                if (remaining > 0) {
+                    cooldownEl.textContent = `쿨타임: ${remaining}초`;
+                } else {
+                    cooldownEl.textContent = '';
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        function performApocalypseCombo(unitId) {
+            if (!canPerformApocalypseCombo()) {
+                addLog("종말 조합 재료가 부족합니다.");
+                return;
+            }
+            
+            const targetUnit = units.find(u => u.id === unitId && u.tier === 'origin');
+            if (!targetUnit) return;
+            
+            // 재료 소비
+            let consumed = { origin: 0, heaven: 0, mythic: 0, seongryeong: 0 };
+            
+            // 태초 1개 소비 (자기 자신)
+            for (let i = units.length - 1; i >= 0 && consumed.origin < 1; i--) {
+                if (units[i].id === unitId) {
+                    units.splice(i, 1);
+                    consumed.origin++;
+                }
+            }
+            
+            // 대천 2개, 신화 2개, 성령 3개 소비
+            const toConsume = { heaven: 2, mythic: 2, seongryeong: 3 };
+            for (let tier in toConsume) {
+                let needed = toConsume[tier];
+                for (let i = units.length - 1; i >= 0 && needed > 0; i--) {
+                    if (units[i].tier === tier) {
+                        units.splice(i, 1);
+                        needed--;
+                    }
+                }
+            }
+            
+            // 종말 유닛 생성
+            const newUnit = {
+                id: Date.now(),
+                tier: 'apocalypse',
+                level: targetUnit.level, // 기존 레벨 유지
+                x: targetUnit.x,
+                y: targetUnit.y,
+                lastAttack: Date.now(),
+                color: TIERS['apocalypse'].color
+            };
+            
+            units.push(newUnit);
+            addLog("🌌 종말 조합 성공! 태초가 종말로 진화했습니다!");
+            updateUI();
+            renderUnitsList();
+        }
+
+        function performMobiusCombo(unitId) {
+            if (!canPerformMobiusCombo()) {
+                addLog("뫼비우스 조합 조건이 충족되지 않습니다. (종말 2 + 태초 2 + 버프 활성화 필요)");
+                return;
+            }
+            
+            const targetUnit = units.find(u => u.id === unitId && u.tier === 'apocalypse');
+            if (!targetUnit) return;
+            
+            // 재료 소비: 종말 2개 (자기 자신 포함), 태초 2개
+            let consumedApocalypse = 0;
+            let consumedOrigin = 0;
+            
+            // 종말 2개 소비 (클릭한 종말 포함)
+            for (let i = units.length - 1; i >= 0 && consumedApocalypse < 2; i--) {
+                if (units[i].tier === 'apocalypse') {
+                    if (consumedApocalypse === 0 && units[i].id === unitId) {
+                        // 첫 번째는 클릭한 유닛
+                    }
+                    units.splice(i, 1);
+                    consumedApocalypse++;
+                }
+            }
+            
+            // 태초 2개 소비
+            for (let i = units.length - 1; i >= 0 && consumedOrigin < 2; i--) {
+                if (units[i].tier === 'origin') {
+                    units.splice(i, 1);
+                    consumedOrigin++;
+                }
+            }
+            
+            // 뫼비우스 유닛 생성 (레벨 유지)
+            const newUnit = {
+                id: Date.now(),
+                tier: 'mobius',
+                level: targetUnit.level,
+                x: targetUnit.x,
+                y: targetUnit.y,
+                lastAttack: Date.now(),
+                color: TIERS['mobius'].color
+            };
+            
+            units.push(newUnit);
+            addLog("♾️ 뫼비우스 조합 성공! 종말이 뫼비우스로 진화했습니다!");
+            updateUI();
+            renderUnitsList();
+        }
+
+        function synthesizeUnit(unitId) {
+            const unit = units.find(u => u.id === unitId);
+            if (!unit) return;
+            
+            const currentTier = unit.tier;
+            const nextTier = SYNTHESIS_MAP[currentTier];
+            
+            if (!nextTier) {
+                addLog("이 등급은 합성할 수 없습니다.");
+                return;
+            }
+            
+            const count = getTierCount(currentTier);
+            if (count < 3) {
+                addLog(`합성하려면 ${TIERS[currentTier].name}이 3개 이상 필요합니다. (현재 ${count}개)`);
+                return;
+            }
+            
+            // 3개 소비하고 1개 생성 (대천까지 → 태초 가능)
+            let removed = 0;
+            for (let i = units.length - 1; i >= 0 && removed < 3; i--) {
+                if (units[i].tier === currentTier) {
+                    units.splice(i, 1);
+                    removed++;
+                }
+            }
+            
+            // 새 유닛 생성 (현재 글로벌 강화 보너스 적용)
+            const angle = Math.random() * Math.PI * 2;
+            const dist = Math.random() * (INNER_RADIUS - 30) + 30;
+            const newUnit = {
+                id: Date.now(),
+                tier: nextTier,
+                level: 1 + globalLevelBonus,
+                x: CENTER_X + Math.cos(angle) * dist,
+                y: CENTER_Y + Math.sin(angle) * dist,
+                lastAttack: Date.now(),
+                color: TIERS[nextTier].color
+            };
+            
+            units.push(newUnit);
+            
+            addLog(`🔄 ${TIERS[currentTier].name} 3개 → ${TIERS[nextTier].name} 1개 합성 완료!`);
+            updateUI();
+            renderUnitsList();
+        }
+
+        // 오른쪽 승천 기능상자용 함수
+        function ascendFromBox(startTier) {
+            const unit = units.find(u => u.tier === startTier);
+            if (!unit) {
+                addLog(`${TIERS[startTier].name} 등급 유닛이 없습니다.`);
+                return;
+            }
+            
+            let targetTier, cost, successRate;
+            
+            if (startTier === 'epic') {
+                targetTier = 'legendary';
+                cost = 100;
+                successRate = 100;
+            } else if (startTier === 'legendary') {
+                targetTier = 'mythic';
+                cost = 200;
+                successRate = 75;
+            } else if (startTier === 'mythic') {
+                targetTier = 'heaven';
+                cost = 250;
+                successRate = 60;
+            } else {
+                addLog("이 등급은 기능상자에서 승천할 수 없습니다.");
+                return;
+            }
+            
+            if (gold < cost) {
+                addLog(`골드가 부족합니다! (필요: ${cost}원)`);
+                return;
+            }
+            
+            gold -= cost;
+            
+            if (Math.random() * 100 <= successRate) {
+                const oldName = TIERS[startTier].name;
+                const newName = TIERS[targetTier].name;
+                
+                unit.tier = targetTier;
+                unit.color = TIERS[targetTier].color;
+                // 레벨 유지 (강화된 상태로 승천)
+                
+                addLog(`🌟 ${oldName} → ${newName} 승천 성공! (기능상자)`);
+            } else {
+                addLog(`승천 실패... (${TIERS[targetTier].name} 확률 ${successRate}%)`);
+            }
+            
+            updateUI();
+            renderUnitsList();
+        }
+
+        function sellUnit(unitId) {
+            const index = units.findIndex(u => u.id === unitId);
+            if (index === -1) return;
+            
+            const unit = units[index];
+            const tier = TIERS[unit.tier];
+            
+            if (!tier.sellable) {
+                addLog("이 등급은 판매할 수 없습니다!");
+                return;
+            }
+            
+            // 판매값 계산 (일반 6원, 등급 높을수록 50% 증가, 전설부터 120% 적용)
+            let sellPrice = 6; // 기본 (일반)
+            
+            const tierIndex = TIER_ORDER.indexOf(unit.tier);
+            if (tierIndex > 0) {
+                sellPrice = 6 * Math.pow(1.5, tierIndex); // 50%씩 증가
+            }
+            
+            // 전설 이상은 추가 20% (총 120% 효과)
+            if (['legendary', 'mythic', 'heaven', 'origin', 'apocalypse', 'mobius'].includes(unit.tier)) {
+                sellPrice *= 1.2;
+            }
+            
+            sellPrice = Math.floor(sellPrice);
+            gold += sellPrice;
+            
+            units.splice(index, 1);
+            addLog(`${tier.name} 유닛 판매 (+${sellPrice}원)`);
+            
+            updateUI();
+            renderUnitsList();
+        }
+
+        function exchangeUnit(targetTier) {
+            let cost, successRate, targetName;
+            
+            if (targetTier === 'legend') {
+                cost = 20; successRate = 70; targetName = '전설';
+            } else if (targetTier === 'mythic') {
+                cost = 75; successRate = 75; targetName = '신화';
+            } else if (targetTier === 'heaven') {
+                cost = 100; successRate = 90; targetName = '대천';
+            }
+            
+            if (gold < cost) {
+                addLog("골드가 부족합니다!");
+                return;
+            }
+            
+            gold -= cost;
+            
+            if (Math.random() * 100 <= successRate) {
+                // 성공 - 새 유닛 소환
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * (INNER_RADIUS - 30) + 30;
+                const x = CENTER_X + Math.cos(angle) * dist;
+                const y = CENTER_Y + Math.sin(angle) * dist;
+                
+                const newUnit = {
+                    id: Date.now(),
+                    tier: targetTier,
+                    level: 1,
+                    x: x,
+                    y: y,
+                    lastAttack: Date.now(),
+                    color: TIERS[targetTier].color
+                };
+                
+                units.push(newUnit);
+                addLog(`🎊 교환 성공! ${targetName} 유닛 획득!`);
+            } else {
+                addLog(`교환 실패... (${targetName} 확률 ${successRate}%)`);
+            }
+            
+            updateUI();
+            renderUnitsList();
+        }
+
+        function renderUnitsList() {
+            const container = document.getElementById('unit-list');
+            container.innerHTML = '';
+            
+            if (units.length === 0) {
+                container.innerHTML = '<div style="color:#666; text-align:center; padding:10px;">소환된 유닛이 없습니다</div>';
+                return;
+            }
+            
+            units.forEach(unit => {
+                const tier = TIERS[unit.tier];
+                const dmg = calculateDamage(unit);
+                const interval = getAttackInterval(unit);
+                const canSynthesize = !!SYNTHESIS_MAP[unit.tier]; // 합성 가능한 등급이면 항상 버튼 표시 (개수 부족 시 클릭 시 안내)
+                const ascensionInfo = getAscensionInfo(unit);
+                const canDoApocalypse = unit.tier === 'origin' && canPerformApocalypseCombo();
+                const canDoMobius = unit.tier === 'apocalypse' && canPerformMobiusCombo();
+                
+                let actionButtons = '';
+                
+                // 히든 조합 우선 처리 (뫼비우스 > 종말)
+                if (canDoMobius) {
+                    actionButtons = `
+                        <button class="action-btn upgrade-btn" data-action="mobius" style="background:#88ddff; color:#000; flex:1;">
+                            ♾️ 뫼비우스 조합 (버프 ON)
+                        </button>
+                    `;
+                } else if (canDoApocalypse) {
+                    actionButtons = `
+                        <button class="action-btn upgrade-btn" data-action="apocalypse" style="background:#ffcc00; color:#000; flex:1;">
+                            🌌 종말 조합
+                        </button>
+                    `;
+                } else if (canSynthesize && tier.sellable) {
+                    // 3개 이상 + 판매 가능한 경우 → 합성 + 판매 나란히 표시
+                    actionButtons = `
+                        <button class="action-btn upgrade-btn" data-action="synthesize" style="background:#00aaff; flex:1; margin-right:4px;">
+                            합성 (3→1)
+                        </button>
+                        <button class="action-btn sell-btn" data-action="sell" style="flex:1;">판매</button>
+                    `;
+                } else if (canSynthesize) {
+                    actionButtons = `
+                        <button class="action-btn upgrade-btn" data-action="synthesize" style="background:#00aaff;">
+                            합성 (3→1)
+                        </button>
+                    `;
+                } else if (ascensionInfo) {
+                    actionButtons = `
+                        <button class="action-btn upgrade-btn" data-action="ascend" style="background:#ffaa00; color:#000;">
+                            승천
+                        </button>
+                    `;
+                } else if (tier.sellable) {
+                    actionButtons = `
+                        <button class="action-btn sell-btn" data-action="sell">판매</button>
+                    `;
+                } else {
+                    actionButtons = `<div style="font-size:0.7rem; color:#888; text-align:center;">최고 등급</div>`;
+                }
+                
+                const card = document.createElement('div');
+                card.className = `unit-card ${tier.class}`;
+                card.dataset.id = unit.id;
+                if (canDoMobius) {
+                    card.style.boxShadow = '0 0 14px #88ddff';
+                } else if (canDoApocalypse) {
+                    card.dataset.comboReady = 'true';
+                    card.style.boxShadow = '0 0 12px #ffcc00';
+                }
+                card.innerHTML = `
+                    <div class="unit-header">
+                        <span class="tier ${tier.class}">${tier.name}</span>
+                        <span style="font-size:0.75rem; color:${canDoMobius ? '#88ddff' : (canDoApocalypse ? '#ffcc00' : '#888')}; font-weight:${(canDoMobius || canDoApocalypse) ? 'bold' : 'normal'};">
+                            Lv.${unit.level}
+                        </span>
+                    </div>
+                    <div class="unit-stats">
+                        데미지: <strong style="color:#ffcc00">${dmg}</strong><br>
+                        공격속도: <strong>${(interval/1000).toFixed(2)}초</strong>
+                        ${tier.aoe ? '<span style="color:#ff8800">• 범위</span>' : ''}
+                        ${tier.ignoreDef ? '<span style="color:#ff0000">• 방어무시</span>' : ''}
+                    </div>
+                    <div class="unit-actions">
+                        ${actionButtons}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // 이벤트 위임 (한 번만 등록)
+            if (!container.dataset.listenerAdded) {
+                container.addEventListener('click', function(e) {
+                    const btn = e.target.closest('button');
+                    if (!btn) return;
+                    
+                    const card = btn.closest('.unit-card');
+                    if (!card) return;
+                    
+                    const unitId = parseInt(card.dataset.id);
+                    const action = btn.dataset.action;
+
+                    // 종말 조합 클릭 처리 (태초 유닛을 직접 클릭한 경우)
+                    if (!action && card.dataset.comboReady === 'true') {
+                        performApocalypseCombo(unitId);
+                        return;
+                    }
+                    
+                    if (action === 'mobius') {
+                        performMobiusCombo(unitId);
+                    } else if (action === 'apocalypse' || (card.dataset.comboReady === 'true')) {
+                        performApocalypseCombo(unitId);
+                    } else if (action === 'synthesize') {
+                        synthesizeUnit(unitId);
+                    } else if (action === 'sell') {
+                        sellUnit(unitId);
+                    } else if (action === 'ascend') {
+                        ascendUnit(unitId);
+                    }
+                });
+                container.dataset.listenerAdded = 'true';
+            }
+        }
+
+        // ==================== 적 관리 ====================
+        function spawnEnemy(isBoss = false, isDeathmatch = false) {
+            let angle;
+            
+            if (isBoss || isDeathmatch) {
+                // 보스/데스매치는 랜덤 위치
+                angle = Math.random() * Math.PI * 2;
+            } else {
+                // 일반 적은 위쪽 포탈에서 소환 (약간의 랜덤 오프셋)
+                angle = SPAWN_PORTAL_ANGLE + (Math.random() - 0.5) * 0.6;
+            }
+            
+            let health = 10 * Math.pow(1.1, currentLevel - 1);  // 라운드당 체력 10% 증가로 완화
+            
+            if (isBoss) {
+                // 보스 체력 배수 (너프 적용)
+                if (currentLevel === 200) {
+                    health *= 14;
+                } else if (currentLevel === 199) {
+                    health *= 12;
+                } else if (currentLevel >= 175) {
+                    health *= 10; // 데스매치 보스
+                } else {
+                    health *= 10; // 일반 보스
+                }
+            } else if (isDeathmatch) {
+                health *= 5; // 데스매치 일반 적 (너프)
+            }
+            
+            const baseSpeed = isBoss || isDeathmatch ? 0.008 : 0.012;
+            const enemy = {
+                id: Date.now() + Math.random(),
+                angle: angle,
+                health: Math.floor(health),
+                maxHealth: Math.floor(health),
+                isBoss: isBoss,
+                isDeathmatch: isDeathmatch,
+                speed: baseSpeed * gameSpeed,
+                x: CENTER_X + Math.cos(angle) * OUTER_RADIUS,
+                y: CENTER_Y + Math.sin(angle) * OUTER_RADIUS
+            };
+            
+            enemies.push(enemy);
+        }
+
+        function updateEnemies() {
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const enemy = enemies[i];
+                enemy.angle += enemy.speed;
+                
+                // 위치 항상 정확히 외곽 원 위에 유지
+                enemy.x = CENTER_X + Math.cos(enemy.angle) * OUTER_RADIUS;
+                enemy.y = CENTER_Y + Math.sin(enemy.angle) * OUTER_RADIUS;
+                
+                // 체력 0 이하 제거 + 골드 지급
+                if (enemy.health <= 0) {
+                    const goldGain = enemy.isBoss ? 150 : (enemy.isDeathmatch ? 45 : 2);
+                    gold += goldGain;
+                    
+                    // 플로팅 골드 텍스트만 유지 (로그는 제거)
+                    createFloatingGold(enemy.x, enemy.y, goldGain);
+                    
+                    // 보스 처치 시 방어력 증가 (Part 시스템)
+                    if (enemy.isBoss) {
+                        if (currentLevel === 30) {
+                            enemyDefense += 1; // Part 2
+                            addLog("⚔️ Part 2 진입! 적 방어력 +1");
+                        } else if (currentLevel === 65) {
+                            enemyDefense += 2; // Part 3
+                            addLog("⚔️ Part 3 진입! 적 방어력 +2");
+                        } else if (currentLevel === 87) {
+                            enemyDefense += 2;
+                            addLog("⚔️ Part 4 진입! 적 방어력 +2");
+                        } else if ([104,122,145,174].includes(currentLevel)) {
+                            enemyDefense += 3;
+                            addLog(`⚔️ Part 진행! 적 방어력 +3`);
+                        } else if ([180,190,195,199,200].includes(currentLevel)) {
+                            enemyDefense += 4;
+                            addLog(`⚔️ 최종 구간! 적 방어력 +4`);
+                        }
+                    }
+                    
+                    enemies.splice(i, 1);
+                    updateUI();
+                }
+            }
+            
+            // 100마리 초과 패배
+            if (enemies.length >= 100) {
+                endGame(false, "적의 수가 100마리를 넘었습니다!");
+            }
+        }
+
+        function drawEnemies() {
+            ctx.strokeStyle = '#ff4444';
+            ctx.lineWidth = 2;
+            
+            enemies.forEach(enemy => {
+                const size = enemy.isBoss ? 18 : (enemy.isDeathmatch ? 14 : 10);
+                
+                // 적 본체
+                ctx.fillStyle = enemy.isBoss ? '#ff0000' : (enemy.isDeathmatch ? '#ff8800' : '#ff4444');
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 체력 바
+                const barWidth = size * 1.8;
+                const healthPercent = enemy.health / enemy.maxHealth;
+                
+                ctx.fillStyle = '#222';
+                ctx.fillRect(enemy.x - barWidth/2, enemy.y - size - 8, barWidth, 5);
+                
+                ctx.fillStyle = healthPercent > 0.5 ? '#0f0' : (healthPercent > 0.2 ? '#ff0' : '#f00');
+                ctx.fillRect(enemy.x - barWidth/2, enemy.y - size - 8, barWidth * healthPercent, 5);
+                
+                // 보스 표시
+                if (enemy.isBoss) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 10px sans-serif';
+                    ctx.fillText('BOSS', enemy.x - 15, enemy.y - size - 14);
+                }
+            });
+        }
+
+        // ==================== 유닛 공격 ====================
+        function performAttacks() {
+            const now = Date.now();
+            
+            units.forEach(unit => {
+                const tier = TIERS[unit.tier];
+                const interval = getAttackInterval(unit);
+                
+                if (now - unit.lastAttack >= interval && enemies.length > 0) {
+                    unit.lastAttack = now;
+                    
+                    // 가장 가까운 적 찾기
+                    let target = null;
+                    let minDist = Infinity;
+                    
+                    enemies.forEach(enemy => {
+                        const dist = Math.hypot(unit.x - enemy.x, unit.y - enemy.y);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            target = enemy;
+                        }
+                    });
+                    
+                    if (target) {
+                        let dmg = calculateDamage(unit);
+                        
+                        // 방어력 적용 (enemyDefense × 0.5% 감소)
+                        if (enemyDefense > 0 && !tier.ignoreDef) {
+                            const reduction = 1 - (enemyDefense * 0.005);
+                            dmg = Math.floor(dmg * reduction);
+                        }
+                        
+                        // 데미지 적용
+                        target.health -= dmg;
+                        
+                        // 범위 공격
+                        if (tier.aoe) {
+                            const aoeRadius = tier.infinite ? 120 : (tier.wide ? 90 : 70);
+                            
+                            enemies.forEach(other => {
+                                if (other.id !== target.id) {
+                                    const dist = Math.hypot(target.x - other.x, target.y - other.y);
+                                    if (dist <= aoeRadius) {
+                                        let splashDmg = Math.floor(dmg * (tier.infinite ? 0.8 : 0.6));
+                                        if (enemyDefense > 0 && !tier.ignoreDef) {
+                                            const reduction = 1 - (enemyDefense * 0.005);
+                                            splashDmg = Math.floor(splashDmg * reduction);
+                                        }
+                                        other.health -= splashDmg;
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // 공격 이펙트
+                        drawAttackEffect(unit.x, unit.y, target.x, target.y, tier.color);
+                    }
+                }
+            });
+        }
+
+        function drawAttackEffect(fromX, fromY, toX, toY, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 15;
+            
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+            
+            // 파티클
+            ctx.fillStyle = color;
+            for (let i = 0; i < 5; i++) {
+                const px = fromX + (toX - fromX) * (i / 5);
+                const py = fromY + (toY - fromY) * (i / 5);
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.shadowBlur = 0;
+        }
+
+        // 적 처치 시 골드 플로팅 텍스트
+        function createFloatingGold(x, y, amount) {
+            const floatEl = document.createElement('div');
+            floatEl.style.position = 'absolute';
+            floatEl.style.left = `${x}px`;
+            floatEl.style.top = `${y}px`;
+            floatEl.style.color = '#ffdd00';
+            floatEl.style.fontWeight = 'bold';
+            floatEl.style.fontSize = '14px';
+            floatEl.style.textShadow = '0 0 8px #ffaa00';
+            floatEl.style.pointerEvents = 'none';
+            floatEl.style.zIndex = '100';
+            floatEl.textContent = `+${amount.toFixed(1)}`;
+            
+            document.body.appendChild(floatEl);
+            
+            // 애니메이션
+            let opacity = 1;
+            const interval = setInterval(() => {
+                opacity -= 0.08;
+                floatEl.style.opacity = opacity;
+                floatEl.style.transform = `translateY(-${(1 - opacity) * 40}px)`;
+                
+                if (opacity <= 0) {
+                    clearInterval(interval);
+                    floatEl.remove();
+                }
+            }, 50);
+        }
+
+        // ==================== 그리기 ====================
+        function drawMap() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 배경
+            ctx.fillStyle = '#0a0a1f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 외곽 적 라인 (빨간색 원)
+            ctx.strokeStyle = '#ff3366';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.arc(CENTER_X, CENTER_Y, OUTER_RADIUS, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 외곽 장식
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(CENTER_X, CENTER_Y, OUTER_RADIUS + 12, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 안쪽 플레이어 영역
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(CENTER_X, CENTER_Y, INNER_RADIUS, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 안쪽 채우기 (반투명)
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.08)';
+            ctx.beginPath();
+            ctx.arc(CENTER_X, CENTER_Y, INNER_RADIUS, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 중앙 장식
+            ctx.fillStyle = '#112244';
+            ctx.beginPath();
+            ctx.arc(CENTER_X, CENTER_Y, 25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // 레벨 표시
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Lv.${currentLevel}`, CENTER_X, CENTER_Y + 6);
+            
+            // === 적 소환 포탈 (위쪽 하얀 원) ===
+            const portalX = CENTER_X + Math.cos(SPAWN_PORTAL_ANGLE) * OUTER_RADIUS;
+            const portalY = CENTER_Y + Math.sin(SPAWN_PORTAL_ANGLE) * OUTER_RADIUS;
+            
+            // 포탈 배경
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.beginPath();
+            ctx.arc(portalX, portalY, 22, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 포탈 테두리 (빛나는 효과)
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 4;
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(portalX, portalY, 20, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            
+            // 포탈 내부
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(portalX, portalY, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // "SPAWN" 텍스트
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 9px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('PORTAL', portalX, portalY + 3);
+        }
+
+        function drawUnits() {
+            units.forEach(unit => {
+                const tier = TIERS[unit.tier];
+                const size = tier.infinite ? 22 : (tier.aoe ? 18 : 14);
+                
+                // 유닛 본체
+                ctx.fillStyle = unit.color;
+                ctx.shadowColor = unit.color;
+                ctx.shadowBlur = tier.infinite ? 25 : 12;
+                
+                ctx.beginPath();
+                ctx.arc(unit.x, unit.y, size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+                
+                // 테두리
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 레벨 표시
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(unit.level.toString(), unit.x, unit.y + 4);
+            });
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            const now = Date.now();
+            const delta = now - lastTime;
+            lastTime = now;
+            
+            // 적 업데이트
+            updateEnemies();
+            
+            // 공격
+            performAttacks();
+            
+            // 그리기
+            drawMap();
+            drawUnits();
+            drawEnemies();
+            
+            // UI 업데이트
+            updateUI();
+            
+            // 타이머 감소 (배속 적용)
+            const timerInterval = Math.floor(1000 / gameSpeed);
+            if (now - roundStartTime >= timerInterval && timeLeft > 0) {
+                timeLeft--;
+                roundStartTime = now;
+                
+                if (timeLeft <= 0) {
+                    if (isPrepPhase) {
+                        isPrepPhase = false;
+                        timeLeft = 90;
+                        addLog("첫 라운드 시작!");
+                        nextRound();
+                    } else {
+                        handleRoundEnd();
+                    }
+                }
+            }
+            
+            // 승리 조건
+            if (currentLevel > 200) {
+                endGame(true);
+                return;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function handleRoundEnd() {
+            clearInterval(spawnInterval);
+            spawnInterval = null;
+            
+            // 데스매치/보스 구간 (175레벨 이상 또는 특정 보스 레벨)
+            const isHighLevelBoss = currentLevel >= 175 || 
+                [30,65,87,104,122,145,174,180,190,195,199,200].includes(currentLevel);
+            
+            if (isHighLevelBoss && enemies.length > 0) {
+                // 보스/데스매치: 시간 내에 못 잡으면 패배
+                endGame(false, "보스/데스매치를 시간 내에 클리어하지 못했습니다!");
+            } else {
+                // 일반 라운드: 적을 다 못 잡아도 타이머 끝나면 다음 라운드로 강제 진행
+                if (enemies.length > 0) {
+                    addLog("⏰ 라운드 시간 종료! 남은 적이 있어도 다음 라운드로 진행합니다.");
+                }
+                nextRound();
+            }
+        }
+
+        function nextRound() {
+            if (!gameRunning) return;
+            
+            currentLevel++;
+            isPrepPhase = false;
+            timeLeft = [30,65,87,104,122,145,174,180,190,195,199,200].includes(currentLevel) ? 300 : 90;
+            roundTime = timeLeft;
+            roundStartTime = Date.now();
+            
+            // 적은 삭제하지 않고 그대로 유지 (남은 적이 다음 라운드에도 계속 존재)
+            
+            // 이전 스폰 인터벌 확실히 정리 (버그 방지)
+            if (spawnInterval) {
+                clearInterval(spawnInterval);
+                spawnInterval = null;
+            }
+            
+            const isBossRound = [30,65,87,104,122,145,174,180,190,195,199,200].includes(currentLevel);
+            const isDeathmatch = currentLevel >= 175 && currentLevel <= 198;
+            
+            addLog(`=== 라운드 ${currentLevel} 시작 ===`);
+            
+            if (isBossRound) {
+                addLog("⚠️ 보스 라운드! 보스 1마리 등장");
+                spawnEnemy(true);
+                timeLeft = 300;
+            } else if (isDeathmatch) {
+                addLog("🔥 데스매치 구간! 강력한 적 8마리");
+                for (let i = 0; i < 8; i++) {
+                    spawnEnemy(false, true);
+                }
+                timeLeft = 300;
+            } else {
+                // 일반 라운드 - 배속에 따라 시간 기반으로 소환 (85% 시간 안에 50마리 완료)
+                let spawned = 0;
+                const totalToSpawn = 50;
+                
+                // 라운드 시간의 85% 안에 소환을 마치도록 간격 계산
+                const spawnDurationMs = roundTime * 1000 * 0.85;
+                const spawnIntervalTime = Math.max(200, Math.floor(spawnDurationMs / totalToSpawn / gameSpeed));
+                
+                spawnInterval = setInterval(() => {
+                    if (!gameRunning || spawned >= totalToSpawn) {
+                        clearInterval(spawnInterval);
+                        spawnInterval = null;
+                        return;
+                    }
+                    
+                    spawnEnemy();
+                    spawned++;
+                }, spawnIntervalTime);
+            }
+            
+            updateUI();
+        }
+
+        function setGameSpeed(speed) {
+            gameSpeed = speed;
+            addLog(`⚡ 게임 속도 ${speed}x로 변경`);
+            
+            // 기존 스폰 인터벌 정리 후 재시작 (규칙적 스폰 유지)
+            if (spawnInterval) {
+                clearInterval(spawnInterval);
+                spawnInterval = null;
+                
+                // 현재 일반 라운드라면 새로운 간격으로 다시 시작
+                // (간단하게 다음 라운드에서 적용되도록 하고, 이동 속도만 즉시 적용)
+            }
+            
+            // 적 이동 속도 즉시 배속 적용
+            enemies.forEach(enemy => {
+                const baseSpeed = enemy.isBoss || enemy.isDeathmatch ? 0.008 : 0.012;
+                enemy.speed = baseSpeed * gameSpeed;
+            });
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            
+            // 초기화
+            gold = 30;
+            currentLevel = 1;
+            timeLeft = 90;
+            enemies = [];
+            units = [];
+            logMessages = [];
+            
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+            
+            gameRunning = true;
+            lastTime = Date.now();
+            roundStartTime = Date.now();
+            isPrepPhase = true;
+            timeLeft = 30;   // 정확히 30초부터 시작
+            
+            // 초기 유닛 2개 지급 (테스트 편의)
+            for (let i = 0; i < 2; i++) {
+                const tierKey = Math.random() > 0.7 ? 'rare' : 'normal';
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * (INNER_RADIUS - 30) + 30;
+                
+                units.push({
+                    id: Date.now() + i,
+                    tier: tierKey,
+                    level: 1,
+                    x: CENTER_X + Math.cos(angle) * dist,
+                    y: CENTER_Y + Math.sin(angle) * dist,
+                    lastAttack: Date.now(),
+                    color: TIERS[tierKey].color
+                });
+            }
+            
+            addLog("게임 시작! 30초 대기 후 첫 라운드 시작");
+            updateUI();
+            updateProbabilityList();
+            updateEnemyHealthInfo();
+            renderUnitsList();
+            gameLoop();
+            
+            // 테스트용: 5초마다 적 소환 (실제 게임에서는 라운드에 따라)
+            // 실제로는 nextRound에서 처리됨
+        }
+
+        function endGame(isWin, reason = '') {
+            gameRunning = false;
+            clearInterval(spawnInterval);
+            
+            const msg = isWin 
+                ? "🎉 축하합니다! 200레벨 클리어! 게임 승리!" 
+                : `💀 게임 오버! ${reason || '적의 수가 너무 많습니다.'}`;
+            
+            setTimeout(() => {
+                alert(msg);
+                // 재시작
+                if (confirm("다시 플레이하시겠습니까?")) {
+                    location.reload();
+                }
+            }, 500);
+        }
+
+        function showExplanation() {
+            document.getElementById('explanation-modal').style.display = 'flex';
+        }
+        
+        function closeExplanation() {
+            document.getElementById('explanation-modal').style.display = 'none';
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            if (!gameRunning) return;
+            
+            if (e.key === 's' || e.key === 'S') {
+                summonUnit();
+            }
+            if (e.key === 'n' || e.key === 'N') {
+                nextRound();
+            }
+        });
+
+        // 초기 안내
+        console.log('%c[메이플 운빨 디펜스] 프로토타입 로드 완료. S키 = 소환, N키 = 다음 라운드', 'color:#0f0');
+    </script>
+</body>
+</html>
