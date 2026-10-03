@@ -9,6 +9,7 @@
 - 게임 원본 `maple_unlucky_defense (51).html`의 내용은 바꾸지 않았다.
 - 루트 `README.md`의 내용은 바꾸지 않았다.
 - Git 브랜치 `Devolop`, `Client`, `Server`, `database`는 만들지 않았다.
+- 0001 커밋 해시 `3298fa7644715787ede6b15b421f574a23d9ffff`를 `Docs/Branchs/commits/records/0001.md`에 기입했다.
 
 ## 프로토타입 — 문서 작업 이전
 
