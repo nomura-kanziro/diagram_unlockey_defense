@@ -4,8 +4,9 @@
 
 ## 실행
 
+저장소 루트에서 `npm install`과 `npm run dev`를 실행해도 이 폴더의 설치와 개발 서버로 이어진다. `Client` 안에서 직접 실행해도 같다.
+
 ```
-cd Client
 npm install
 npm run dev
 ```

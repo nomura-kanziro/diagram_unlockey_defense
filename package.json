@@ -1,0 +1,11 @@
+{
+  "name": "maple-unlucky-defense",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install --prefix Client",
+    "dev": "npm run dev --prefix Client",
+    "build": "npm run build --prefix Client",
+    "preview": "npm run preview --prefix Client",
+    "check": "npm run check --prefix Client"
+  }
+}

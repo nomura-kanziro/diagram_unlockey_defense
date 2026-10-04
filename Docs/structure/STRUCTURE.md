@@ -7,6 +7,8 @@ maple_unlucky_defense/
 ├── maple_unlucky_defense (51).html
 ├── README.md
 ├── AGENTS.md
+├── package.json
+├── package-lock.json
 ├── Client/
 │   ├── index.html
 │   ├── package.json
@@ -83,7 +85,8 @@ maple_unlucky_defense/
     │           ├── 0014.md
     │           ├── 0015.md
     │           ├── 0016.md
-    │           └── 0017.md
+    │           ├── 0017.md
+    │           └── 0018.md
     ├── Build-up/
     │   └── BUILD_UP.md
     ├── Changelog/
@@ -118,6 +121,7 @@ maple_unlucky_defense/
 | `maple_unlucky_defense (51).html` | 게임 원본. 시작 화면, 스타일, 전투 스크립트가 한 파일에 있다. |
 | `README.md` | 플레이 규칙 설명. |
 | `AGENTS.md` | 루트에서 여러 도구가 읽는 작업 규칙 사본. |
+| `package.json` | 루트에서 `npm install`, `npm run dev`를 `Client`로 연결한다. |
 
 ## Client
 
@@ -159,7 +163,7 @@ Vue 3와 Vite로 만든 클라이언트다. `node_modules`와 `dist`는 `.gitign
 | `Branchs/Server` | `README.md` | 서버 브랜치 설명 |
 | `Branchs/database` | `README.md` | 데이터베이스 브랜치 설명 |
 | `Branchs/docs` | `README.md` | 문서 브랜치 설명 |
-| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0017.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
+| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0018.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
 | `Build-up` | `BUILD_UP.md` | 확인된 준비 단계 |
 | `Changelog` | `CHANGELOG.md` | 시간순 변경 이력 |
 | `find_debug` | `README.md`, 화면·소환·합성 기록 | 디버그 기록 형식과 확인한 사건 |
