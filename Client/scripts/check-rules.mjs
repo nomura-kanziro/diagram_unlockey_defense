@@ -116,6 +116,24 @@ try {
   globalThis.clearInterval = originalClearInterval
 }
 
+const attackGame = createGame()
+const attacker = { tier: 'normal', level: 1 }
+expect('1배속 공격 간격', attackGame.getAttackInterval(attacker), 1000)
+attackGame.state.gameSpeed = 2
+expect('2배속 공격 간격', attackGame.getAttackInterval(attacker), 500)
+attackGame.state.gameSpeed = 6
+expect('6배속 공격 간격', attackGame.getAttackInterval(attacker), 166)
+attackGame.state.gameSpeed = 1
+attacker.level = 2
+expect('2레벨 1배속 공격 간격', attackGame.getAttackInterval(attacker), 940)
+attackGame.state.gameSpeed = 4
+expect('2레벨 4배속 공격 간격', attackGame.getAttackInterval(attacker), 235)
+attackGame.state.gameSpeed = 1
+attacker.level = 20
+expect('상한 1배속 공격 간격', attackGame.getAttackInterval(attacker), 200)
+attackGame.state.gameSpeed = 4
+expect('상한 4배속 공격 간격', attackGame.getAttackInterval(attacker), 50)
+
 if (failures.length) {
   console.error(failures.join('\n'))
   process.exit(1)

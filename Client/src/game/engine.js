@@ -112,7 +112,8 @@ export function createGame() {
   function getAttackInterval(unit) {
     const baseInterval = 1000
     const reduction = (unit.level - 1) * 60
-    return Math.max(200, baseInterval - reduction)
+    const unscaled = Math.max(200, baseInterval - reduction)
+    return Math.max(1, Math.floor(unscaled / state.gameSpeed))
   }
 
   function placeInInnerCircle() {
