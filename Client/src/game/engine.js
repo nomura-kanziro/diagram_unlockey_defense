@@ -8,7 +8,8 @@ import {
   TIERS,
   TIER_ORDER,
   SYNTHESIS_MAP,
-  isBossLevel
+  isBossLevel,
+  MAX_UNITS
 } from './constants.js'
 
 export function createGame() {
@@ -144,8 +145,8 @@ export function createGame() {
   }
 
   function summonUnit() {
-    if (state.units.length >= 50) {
-      addLog('⚠️ 유닛 최대 수 (50마리)에 도달했습니다!')
+    if (state.units.length >= MAX_UNITS) {
+      addLog(`⚠️ 유닛 최대 수 (${MAX_UNITS}마리)에 도달했습니다!`)
       return
     }
     if (state.gold < 10) {
@@ -157,7 +158,7 @@ export function createGame() {
   }
 
   function summonTenTimes() {
-    if (state.units.length + 11 > 50) {
+    if (state.units.length + 11 > MAX_UNITS) {
       addLog('⚠️ 유닛 최대 수를 초과합니다! (11마리 추가 불가)')
       return
     }
@@ -168,7 +169,7 @@ export function createGame() {
     state.gold -= 100
     addLog('🎁 10연차 소환 시작! (총 11개 소환)')
     for (let i = 0; i < 11; i++) {
-      if (state.units.length >= 50) break
+      if (state.units.length >= MAX_UNITS) break
       _createRandomUnit()
     }
   }

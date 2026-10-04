@@ -1,5 +1,5 @@
 import { createGame } from '../src/game/engine.js'
-import { TIERS, TIER_ORDER } from '../src/game/constants.js'
+import { TIERS, TIER_ORDER, MAX_UNITS } from '../src/game/constants.js'
 
 const failures = []
 function expect(name, actual, expected) {
@@ -133,6 +133,22 @@ attacker.level = 20
 expect('상한 1배속 공격 간격', attackGame.getAttackInterval(attacker), 200)
 attackGame.state.gameSpeed = 4
 expect('상한 4배속 공격 간격', attackGame.getAttackInterval(attacker), 50)
+
+const capGame = createGame()
+capGame.state.gold = 1000
+for (let i = 0; i < MAX_UNITS; i++) capGame.state.units.push(makeUnit(1000 + i, 'normal'))
+capGame.summonUnit()
+expect('최대 마리에서 추가 소환 안 됨', capGame.state.units.length, MAX_UNITS)
+expect('최대 마리', MAX_UNITS, 100)
+capGame.state.units.pop()
+capGame.summonUnit()
+expect('한 마리 빈 자리에서 소환', capGame.state.units.length, MAX_UNITS)
+const tenGame = createGame()
+tenGame.state.gold = 100
+for (let i = 0; i < 90; i++) tenGame.state.units.push(makeUnit(3000 + i, 'normal'))
+tenGame.summonTenTimes()
+expect('90마리에서 10연차 거절', tenGame.state.units.length, 90)
+expect('10연차 거절 후 골드', tenGame.state.gold, 100)
 
 if (failures.length) {
   console.error(failures.join('\n'))

@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import { MAX_UNITS } from '../game/constants.js'
 
 const props = defineProps({
   game: { type: Object, required: true }
@@ -110,7 +111,7 @@ function levelColor(card) {
         </div>
 
         <div class="action-panel">
-          <div class="action-title">소환된 유닛 (<span id="unit-count">{{ game.state.units.length }}</span>/50)</div>
+          <div class="action-title">소환된 유닛 (<span id="unit-count">{{ game.state.units.length }}</span>/{{ MAX_UNITS }})</div>
           <div id="unit-list" class="unit-list">
             <div v-if="game.state.units.length === 0" class="empty-units">소환된 유닛이 없습니다</div>
             <div

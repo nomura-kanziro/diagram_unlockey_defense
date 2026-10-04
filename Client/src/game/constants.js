@@ -3,6 +3,7 @@ export const CENTER_Y = 350
 export const OUTER_RADIUS = 280
 export const INNER_RADIUS = 140
 export const SPAWN_PORTAL_ANGLE = -Math.PI / 2
+export const MAX_UNITS = 100
 
 export const TIERS = {
   normal: { name: '일반', color: '#ffffff', baseDmg: 5, inc: 3, prob: 47, sellable: true, class: 'normal' },
