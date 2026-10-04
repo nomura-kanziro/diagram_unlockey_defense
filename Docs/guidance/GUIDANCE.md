@@ -36,11 +36,12 @@ Windows 파일 시스템은 대소문자를 구분하지 않는다. `.Grok`은 `
 
 | 문서 폴더 | 역할 | Git 브랜치 (2026-10-04) |
 |---|---|---|
-| `Docs/Branchs/Master` | 메인 및 배포 | `master`만 있음 |
+| `Docs/Branchs/Master` | 메인 및 배포 | `master` |
 | `Docs/Branchs/Devolop` | 개발 총합, 병합 전용, 테스트 | 없음 |
-| `Docs/Branchs/Client` | 클라이언트 | 없음 |
+| `Docs/Branchs/Client` | 클라이언트 | `Client` |
 | `Docs/Branchs/Server` | 서버 | 없음 |
 | `Docs/Branchs/database` | 데이터베이스 | 없음 |
+| `Docs/Branchs/docs` | 문서 | `docs` |
 
 없는 브랜치는 사용자 지시 없이 만들지 않는다. 철자 `Devolop`, `vaildates`, `.Curser`는 사용자가 지정한 이름이라 그대로 둔다.
 

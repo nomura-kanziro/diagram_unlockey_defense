@@ -6,4 +6,4 @@
 
 이 브랜치에 올라온 변경은 배포 후보로 본다. 배포 점검 항목은 `Docs/web_management`에 있고, 커밋 기록은 `Docs/Branchs/commits/records`에 있다.
 
-2026-10-04 기준, 플레이용 클라이언트는 Git 브랜치 `Client`의 루트 `Client`다. 원본 HTML도 남아 있다. 서버 배포물은 없다. `master`에는 클라이언트 기능 커밋을 직접 넣지 않는다.
+2026-10-04 기준, 플레이용 클라이언트는 Git 브랜치 `Client`의 루트 `Client`다. 문서만 바꾸는 커밋은 Git 브랜치 `docs`에 둔다. 원본 HTML도 남아 있다. 서버 배포물은 없다. `master`에는 클라이언트 기능 커밋을 직접 넣지 않는다.

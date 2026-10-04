@@ -61,6 +61,8 @@ maple_unlucky_defense/
     │   │   └── README.md
     │   ├── database/
     │   │   └── README.md
+    │   ├── docs/
+    │   │   └── README.md
     │   └── commits/
     │       ├── COMMIT_GUIDE.md
     │       ├── COMMIT_TEMPLATE.md
@@ -72,7 +74,8 @@ maple_unlucky_defense/
     │           ├── 0005.md
     │           ├── 0006.md
     │           ├── 0007.md
-    │           └── 0008.md
+    │           ├── 0008.md
+    │           └── 0009.md
     ├── Build-up/
     │   └── BUILD_UP.md
     ├── Changelog/
@@ -147,7 +150,8 @@ Vue 3와 Vite로 만든 클라이언트다. `node_modules`와 `dist`는 `.gitign
 | `Branchs/Client` | `README.md` | 클라이언트 브랜치 설명 |
 | `Branchs/Server` | `README.md` | 서버 브랜치 설명 |
 | `Branchs/database` | `README.md` | 데이터베이스 브랜치 설명 |
-| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0008.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
+| `Branchs/docs` | `README.md` | 문서 브랜치 설명 |
+| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0009.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
 | `Build-up` | `BUILD_UP.md` | 확인된 준비 단계 |
 | `Changelog` | `CHANGELOG.md` | 시간순 변경 이력 |
 | `find_debug` | `README.md`, 화면·소환·합성 기록 | 디버그 기록 형식과 확인한 사건 |
