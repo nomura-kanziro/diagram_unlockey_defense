@@ -75,12 +75,20 @@ function levelColor(card) {
 
         <div class="action-panel">
           <div class="action-title">유닛 강화</div>
-          <button class="exchange-btn" style="background:#00aa66" @click="game.massUpgradeSingle()">
-            1단위 강화 (10원, +20%씩 증가)
-          </button>
-          <button class="exchange-btn" style="background:#ff8800" @click="game.massUpgradeFive()">
-            5단위 강화 (10원, 20% 확률)
-          </button>
+          <div class="upgrade-row">
+            <div class="upgrade-actions">
+              <button class="exchange-btn" style="background:#00aa66" @click="game.massUpgradeSingle()">
+                1단위 강화 (10원, +20%씩 증가)
+              </button>
+              <button class="exchange-btn" style="background:#ff8800" @click="game.massUpgradeFive()">
+                5단위 강화 (10원, 20% 확률)
+              </button>
+            </div>
+            <div class="enhance-price-board" aria-live="polite">
+              <div class="enhance-price-label">현재 가격</div>
+              <div class="enhance-price-value">{{ game.state.currentEnhanceCost }}원</div>
+            </div>
+          </div>
           <button id="buff-btn" class="exchange-btn" style="background:#aa00ff" @click="game.activateGlobalBuff()">
             버프 (전체 데미지 300%, 30원, 50초 쿨)
           </button>
