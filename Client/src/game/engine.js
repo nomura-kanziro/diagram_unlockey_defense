@@ -392,32 +392,34 @@ export function createGame() {
       addLog('이 등급은 합성할 수 없습니다.')
       return
     }
-    const sameTier = state.units.filter(u => u.tier === currentTier)
-    if (sameTier.length < 3) {
-      addLog(`합성하려면 ${TIERS[currentTier].name}이 3개 이상 필요합니다. (현재 ${sameTier.length}개)`)
+    const currentShape = unitShape(unit)
+    const sameGroup = state.units.filter(u => u.tier === currentTier && unitShape(u) === currentShape)
+    if (sameGroup.length < 3) {
+      addLog(`합성하려면 같은 모양의 ${TIERS[currentTier].name}이 3개 이상 필요합니다. (현재 ${sameGroup.length}개)`)
       return
     }
     const picked = [unit]
     for (let i = state.units.length - 1; i >= 0 && picked.length < 3; i--) {
       const candidate = state.units[i]
-      if (candidate.tier === currentTier && !picked.includes(candidate)) picked.push(candidate)
+      if (candidate.tier === currentTier && unitShape(candidate) === currentShape && !picked.includes(candidate)) picked.push(candidate)
     }
     for (const target of picked) {
       const index = state.units.indexOf(target)
       if (index !== -1) state.units.splice(index, 1)
     }
     const pos = placeInInnerCircle()
+    const resultShape = shapeForTier(nextTier, currentShape)
     state.units.push({
       id: nextId(),
       tier: nextTier,
-      shape: shapeForTier(nextTier, unit.shape || 'circle'),
+      shape: resultShape,
       level: 1 + state.globalLevelBonus,
       x: pos.x,
       y: pos.y,
       lastAttack: Date.now(),
       color: TIERS[nextTier].color
     })
-    addLog(`🔄 ${TIERS[currentTier].name} 3개 → ${TIERS[nextTier].name} 1개 합성 완료!`)
+    addLog(`🔄 ${SHAPE_LABEL[currentShape]} ${TIERS[currentTier].name} 3개 → ${SHAPE_LABEL[resultShape]} ${TIERS[nextTier].name} 1개 합성 완료!`)
   }
 
   function ascendFromBox(startTier) {

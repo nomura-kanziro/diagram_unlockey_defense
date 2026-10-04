@@ -86,7 +86,8 @@ maple_unlucky_defense/
     │           ├── 0015.md
     │           ├── 0016.md
     │           ├── 0017.md
-    │           └── 0018.md
+    │           ├── 0018.md
+    │           └── 0019.md
     ├── Build-up/
     │   └── BUILD_UP.md
     ├── Changelog/
@@ -136,7 +137,7 @@ Vue 3와 Vite로 만든 클라이언트다. `node_modules`와 `dist`는 `.gitign
 | `Client/src/App.vue` | 화면 전환과 S/N 키 |
 | `Client/src/components/*.vue` | 시작 화면, 게임 화면, 설명 모달 |
 | `Client/src/game/constants.js` | 등급, 보스 레벨, 소환 상한 100, 원형·삼각형·사각형 |
-| `Client/src/game/engine.js` | 소환, 강화, 합성, 승천, 전투 루프. 배속은 남은 소환과 유닛 공격 간격에 적용되고, 합성은 클릭한 등급만 쓴다 |
+| `Client/src/game/engine.js` | 소환, 강화, 합성, 승천, 전투 루프. 배속은 남은 소환과 유닛 공격 간격에 적용되고, 합성은 같은 모양과 같은 등급 3마리만 쓴다 |
 | `Client/src/styles/game.css` | 화면 스타일. 가로 전체를 쓰고 전장은 남은 칸에 맞춘 정사각형이다 |
 | `Client/scripts/check-rules.mjs` | 피해, 판매가, 강화, 합성, 보스 체력 확인 |
 
@@ -163,7 +164,7 @@ Vue 3와 Vite로 만든 클라이언트다. `node_modules`와 `dist`는 `.gitign
 | `Branchs/Server` | `README.md` | 서버 브랜치 설명 |
 | `Branchs/database` | `README.md` | 데이터베이스 브랜치 설명 |
 | `Branchs/docs` | `README.md` | 문서 브랜치 설명 |
-| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0018.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
+| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0019.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
 | `Build-up` | `BUILD_UP.md` | 확인된 준비 단계 |
 | `Changelog` | `CHANGELOG.md` | 시간순 변경 이력 |
 | `find_debug` | `README.md`, 화면·소환·합성 기록 | 디버그 기록 형식과 확인한 사건 |

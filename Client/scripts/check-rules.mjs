@@ -185,8 +185,15 @@ shaped.state.units.push(
   { id: 3, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' }
 )
 shaped.synthesizeUnit(shaped.state.units[0])
-expect('합성 결과 모양', shaped.state.units[0].shape, 'square')
-expect('카드 모양 이름', shaped.unitCard(shaped.state.units[0]).shapeLabel, '사각형')
+expect('다른 모양은 합성하지 않음', shaped.state.units.length, 3)
+expect('사각형 2개로는 합성 없음', shaped.state.units.filter(unit => unit.tier === 'rare').length, 0)
+shaped.state.units.push(
+  { id: 4, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' }
+)
+shaped.synthesizeUnit(shaped.state.units.find(unit => unit.shape === 'square'))
+expect('사각형 합성 결과', shaped.state.units.filter(unit => unit.tier === 'rare' && unit.shape === 'square').length, 1)
+expect('삼각형은 남음', shaped.state.units.filter(unit => unit.tier === 'normal' && unit.shape === 'triangle').length, 1)
+expect('카드 모양 이름', shaped.unitCard(shaped.state.units.find(unit => unit.tier === 'rare')).shapeLabel, '사각형')
 
 function putUnit(game, shape, tier, id) {
   game.state.units.push({ id, tier, shape, level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' })

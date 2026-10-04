@@ -152,7 +152,7 @@ function levelColor(card) {
                   @click="game.onUnitAction(unit, 'apocalypse')"
                 >🌌 종말 조합</button>
                 <template v-else-if="game.unitCard(unit).action === 'synthesize-sell'">
-                  <button class="action-btn upgrade-btn" style="background:#00aaff; flex:1; margin-right:4px" @click="game.onUnitAction(unit, 'synthesize')">합성 (3→1)</button>
+                  <button class="action-btn upgrade-btn" style="background:#00aaff; flex:1; margin-right:4px" @click="game.onUnitAction(unit, 'synthesize')">{{ game.unitCard(unit).shapeLabel }} 합성 (3→1)</button>
                   <button class="action-btn sell-btn" style="flex:1" @click="game.onUnitAction(unit, 'sell')">판매</button>
                 </template>
                 <button
@@ -160,7 +160,7 @@ function levelColor(card) {
                   class="action-btn upgrade-btn"
                   style="background:#00aaff"
                   @click="game.onUnitAction(unit, 'synthesize')"
-                >합성 (3→1)</button>
+                >{{ game.unitCard(unit).shapeLabel }} 합성 (3→1)</button>
                 <button
                   v-else-if="game.unitCard(unit).action === 'ascend'"
                   class="action-btn upgrade-btn"
