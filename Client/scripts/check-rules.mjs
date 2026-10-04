@@ -30,7 +30,7 @@ game.state.units.push({
 })
 game.massUpgradeSingle()
 expect('1단위 강화 후 레벨', game.state.units[0].level, 2)
-expect('1단위 강화 후 비용', game.state.currentEnhanceCost, 12)
+expect('1단위 강화 1회 후 비용', game.state.currentEnhanceCost, 10)
 expect('1단위 강화 후 골드', game.state.gold, 20)
 expect('미래 소환 보너스', game.state.globalLevelBonus, 1)
 
@@ -133,6 +133,29 @@ attacker.level = 20
 expect('상한 1배속 공격 간격', attackGame.getAttackInterval(attacker), 200)
 attackGame.state.gameSpeed = 4
 expect('상한 4배속 공격 간격', attackGame.getAttackInterval(attacker), 50)
+
+const costGame = createGame()
+costGame.state.gold = 100
+costGame.state.units.push(makeUnit(900, 'normal'))
+costGame.massUpgradeSingle()
+costGame.massUpgradeSingle()
+expect('1단위 2회 후 비용', costGame.state.currentEnhanceCost, 10)
+costGame.massUpgradeSingle()
+expect('1단위 3회 후 비용', costGame.state.currentEnhanceCost, 11)
+expect('1단위 3회 후 횟수', costGame.state.singleEnhanceCount, 0)
+const random = Math.random
+try {
+  Math.random = () => 0.99
+  costGame.massUpgradeFive()
+  expect('5단위 실패 후 비용', costGame.state.currentEnhanceCost, 14)
+  expect('5단위 실패 후 레벨', costGame.state.units[0].level, 5)
+  Math.random = () => 0
+  costGame.massUpgradeFive()
+  expect('5단위 성공 후 비용', costGame.state.currentEnhanceCost, 17)
+  expect('5단위 성공 후 레벨', costGame.state.units[0].level, 10)
+} finally {
+  Math.random = random
+}
 
 const capGame = createGame()
 capGame.state.gold = 1000

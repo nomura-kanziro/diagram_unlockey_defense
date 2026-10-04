@@ -31,6 +31,7 @@ export function createGame() {
     lastBuffTime: 0,
     globalLevelBonus: 0,
     currentEnhanceCost: 10,
+    singleEnhanceCount: 0,
     explanationOpen: false,
     buffCooldownText: ''
   })
@@ -226,7 +227,11 @@ export function createGame() {
     state.gold -= cost
     state.units.forEach(unit => { unit.level++ })
     state.globalLevelBonus++
-    state.currentEnhanceCost += 2
+    state.singleEnhanceCount++
+    if (state.singleEnhanceCount >= 3) {
+      state.currentEnhanceCost += 1
+      state.singleEnhanceCount = 0
+    }
     addLog(`✅ 1레벨 강화 완료! (비용: ${cost}원) → 다음 비용 ${state.currentEnhanceCost}원 | 보너스 +${state.globalLevelBonus}`)
   }
 
@@ -243,14 +248,16 @@ export function createGame() {
     state.gold -= cost
     state.units.forEach(unit => { unit.level += 1 })
     state.globalLevelBonus += 1
-    if (Math.random() * 100 <= 20) {
+    const fiveSuccess = Math.random() * 100 <= 20
+    if (fiveSuccess) {
       state.units.forEach(unit => { unit.level += 4 })
       state.globalLevelBonus += 4
+    }
+    state.currentEnhanceCost += 3
+    if (fiveSuccess) {
       addLog(`🎉 5단위 강화 성공! (총 +5, 비용 ${cost}원 소모) → 다음 비용 ${state.currentEnhanceCost}원 | 보너스 +${state.globalLevelBonus}`)
-      state.currentEnhanceCost = Math.floor(state.currentEnhanceCost * 1.2)
     } else {
-      addLog('5단위 강화 실패... (20% 확률, 비용 ' + cost + '원 소모) → 최소 +1 강화 적용')
-      state.currentEnhanceCost += 2
+      addLog(`5단위 강화 실패... (20% 확률, 비용 ${cost}원 소모) → 최소 +1 강화 적용, 다음 비용 ${state.currentEnhanceCost}원`)
     }
   }
 
