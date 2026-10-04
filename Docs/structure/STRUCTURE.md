@@ -45,7 +45,8 @@ maple_unlucky_defense/
     │       ├── COMMIT_TEMPLATE.md
     │       └── records/
     │           ├── 0001.md
-    │           └── 0002.md
+    │           ├── 0002.md
+    │           └── 0003.md
     ├── Build-up/
     │   └── BUILD_UP.md
     ├── Changelog/
@@ -100,7 +101,7 @@ maple_unlucky_defense/
 | `Branchs/Client` | `README.md` | 클라이언트 브랜치 설명 |
 | `Branchs/Server` | `README.md` | 서버 브랜치 설명 |
 | `Branchs/database` | `README.md` | 데이터베이스 브랜치 설명 |
-| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`, `records/0002.md` | 커밋 문장 규칙, 기록 템플릿, 첫 커밋 기록과 해시 기입 기록 |
+| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`, `records/0002.md`, `records/0003.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
 | `Build-up` | `BUILD_UP.md` | 확인된 준비 단계 |
 | `Changelog` | `CHANGELOG.md` | 시간순 변경 이력 |
 | `find_debug` | `README.md` | 디버그 기록 형식. 사건 기록은 아직 없다. |
