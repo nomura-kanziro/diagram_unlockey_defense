@@ -57,6 +57,43 @@ game.summonTenTimes()
 expect('10연차 후 유닛 수', game.state.units.length, 11)
 expect('10연차 후 골드', game.state.gold, 0)
 
+const originalSetInterval = globalThis.setInterval
+const originalClearInterval = globalThis.clearInterval
+const timers = []
+globalThis.setInterval = (fn, ms) => {
+  const id = timers.length + 1
+  timers.push({ id, fn, ms, cleared: false })
+  return id
+}
+globalThis.clearInterval = (id) => {
+  const timer = timers.find(item => item.id === id)
+  if (timer) timer.cleared = true
+}
+try {
+  const speedGame = createGame()
+  speedGame.state.gameRunning = true
+  speedGame.state.currentLevel = 1
+  speedGame.state.gameSpeed = 1
+  speedGame.nextRound()
+  const activeBefore = timers.filter(item => !item.cleared)
+  expect('일반 라운드 소환 타이머', activeBefore.length, 1)
+  expect('1배속 소환 간격', activeBefore[0].ms, 1530)
+  activeBefore[0].fn()
+  expect('배속 전 소환', speedGame.state.enemies.length, 1)
+  expect('배속 전 레벨', speedGame.state.currentLevel, 2)
+  speedGame.setGameSpeed(2)
+  const activeAfter = timers.filter(item => !item.cleared)
+  expect('배속 후 소환 타이머', activeAfter.length, 1)
+  expect('2배속 소환 간격', activeAfter[0].ms, 765)
+  expect('배속 직후 기존 적 유지', speedGame.state.enemies.length, 1)
+  activeAfter[0].fn()
+  expect('배속 후 이어서 소환', speedGame.state.enemies.length, 2)
+  expect('배속 후 같은 라운드', speedGame.state.currentLevel, 2)
+} finally {
+  globalThis.setInterval = originalSetInterval
+  globalThis.clearInterval = originalClearInterval
+}
+
 if (failures.length) {
   console.error(failures.join('\n'))
   process.exit(1)

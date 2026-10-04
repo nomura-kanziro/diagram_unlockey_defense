@@ -69,14 +69,16 @@ maple_unlucky_defense/
     │           ├── 0002.md
     │           ├── 0003.md
     │           ├── 0004.md
-    │           └── 0005.md
+    │           ├── 0005.md
+    │           └── 0006.md
     ├── Build-up/
     │   └── BUILD_UP.md
     ├── Changelog/
     │   └── CHANGELOG.md
     ├── find_debug/
     │   ├── README.md
-    │   └── 20261004-155252-화면비율.md
+    │   ├── 20261004-155252-화면비율.md
+    │   └── 20261004-155410-배속소환.md
     ├── guidance/
     │   └── GUIDANCE.md
     ├── plan/
@@ -116,7 +118,7 @@ Vue 3와 Vite로 만든 클라이언트다. `node_modules`와 `dist`는 `.gitign
 | `Client/src/App.vue` | 화면 전환과 S/N 키 |
 | `Client/src/components/*.vue` | 시작 화면, 게임 화면, 설명 모달 |
 | `Client/src/game/constants.js` | 등급과 보스 레벨 |
-| `Client/src/game/engine.js` | 소환, 강화, 합성, 승천, 전투 루프 |
+| `Client/src/game/engine.js` | 소환, 강화, 합성, 승천, 전투 루프. 배속 변경 뒤에도 남은 소환이 이어진다 |
 | `Client/src/styles/game.css` | 화면 스타일. 가로 전체를 쓰고 전장은 남은 칸에 맞춘 정사각형이다 |
 | `Client/scripts/check-rules.mjs` | 피해, 판매가, 강화, 합성, 보스 체력 확인 |
 
@@ -142,10 +144,10 @@ Vue 3와 Vite로 만든 클라이언트다. `node_modules`와 `dist`는 `.gitign
 | `Branchs/Client` | `README.md` | 클라이언트 브랜치 설명 |
 | `Branchs/Server` | `README.md` | 서버 브랜치 설명 |
 | `Branchs/database` | `README.md` | 데이터베이스 브랜치 설명 |
-| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0005.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
+| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0006.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
 | `Build-up` | `BUILD_UP.md` | 확인된 준비 단계 |
 | `Changelog` | `CHANGELOG.md` | 시간순 변경 이력 |
-| `find_debug` | `README.md`, `20261004-155252-화면비율.md` | 디버그 기록 형식과 화면 비율 기록 |
+| `find_debug` | `README.md`, `20261004-155252-화면비율.md`, `20261004-155410-배속소환.md` | 디버그 기록 형식과 화면, 소환 기록 |
 | `guidance` | `GUIDANCE.md` | 작업 순서와 도구별 규칙 위치 |
 | `plan` | `README.md` | 작업 전 계획 형식. 현재 계획 파일은 없다. |
 | `repeater` | `REPEATER.md` | 반복되는 작업 절차와 게임 핵심 |

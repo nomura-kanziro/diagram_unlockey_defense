@@ -39,6 +39,9 @@ export function createGame() {
   let lastTime = Date.now()
   let roundStartTime = Date.now()
   let spawnInterval = null
+  let spawnedCount = 0
+  let spawnTarget = 0
+  let spawning = false
   let rafId = 0
   let buffCooldownTimer = null
 
@@ -779,9 +782,43 @@ export function createGame() {
     })
   }
 
+  function stopSpawnTimer() {
+    if (spawnInterval) {
+      clearInterval(spawnInterval)
+      spawnInterval = null
+    }
+  }
+
+  function currentSpawnGap() {
+    const total = spawnTarget > 0 ? spawnTarget : 50
+    const spawnDurationMs = state.roundTime * 1000 * 0.85
+    return Math.max(200, Math.floor(spawnDurationMs / total / state.gameSpeed))
+  }
+
+  function armSpawnTimer() {
+    stopSpawnTimer()
+    if (!spawning || spawnedCount >= spawnTarget) {
+      spawning = false
+      return
+    }
+    spawnInterval = setInterval(() => {
+      if (!state.gameRunning || spawnedCount >= spawnTarget) {
+        spawning = false
+        stopSpawnTimer()
+        return
+      }
+      spawnEnemy()
+      spawnedCount++
+      if (spawnedCount >= spawnTarget) {
+        spawning = false
+        stopSpawnTimer()
+      }
+    }, currentSpawnGap())
+  }
+
   function handleRoundEnd() {
-    clearInterval(spawnInterval)
-    spawnInterval = null
+    spawning = false
+    stopSpawnTimer()
     const isHighLevelBoss = state.currentLevel >= 175 || isBossLevel(state.currentLevel)
     if (isHighLevelBoss && state.enemies.length > 0) {
       endGame(false, '보스/데스매치를 시간 내에 클리어하지 못했습니다!')
@@ -833,10 +870,10 @@ export function createGame() {
     state.timeLeft = isBossLevel(state.currentLevel) ? 300 : 90
     state.roundTime = state.timeLeft
     roundStartTime = Date.now()
-    if (spawnInterval) {
-      clearInterval(spawnInterval)
-      spawnInterval = null
-    }
+    spawning = false
+    stopSpawnTimer()
+    spawnedCount = 0
+    spawnTarget = 0
     const bossRound = isBossLevel(state.currentLevel)
     const deathmatch = state.currentLevel >= 175 && state.currentLevel <= 198
     addLog(`=== 라운드 ${state.currentLevel} 시작 ===`)
@@ -849,33 +886,21 @@ export function createGame() {
       for (let i = 0; i < 8; i++) spawnEnemy(false, true)
       state.timeLeft = 300
     } else {
-      let spawned = 0
-      const totalToSpawn = 50
-      const spawnDurationMs = state.roundTime * 1000 * 0.85
-      const spawnIntervalTime = Math.max(200, Math.floor(spawnDurationMs / totalToSpawn / state.gameSpeed))
-      spawnInterval = setInterval(() => {
-        if (!state.gameRunning || spawned >= totalToSpawn) {
-          clearInterval(spawnInterval)
-          spawnInterval = null
-          return
-        }
-        spawnEnemy()
-        spawned++
-      }, spawnIntervalTime)
+      spawnTarget = 50
+      spawnedCount = 0
+      spawning = true
+      armSpawnTimer()
     }
   }
 
   function setGameSpeed(speed) {
     state.gameSpeed = speed
     addLog(`⚡ 게임 속도 ${speed}x로 변경`)
-    if (spawnInterval) {
-      clearInterval(spawnInterval)
-      spawnInterval = null
-    }
     state.enemies.forEach(enemy => {
       const baseSpeed = enemy.isBoss || enemy.isDeathmatch ? 0.008 : 0.012
       enemy.speed = baseSpeed * state.gameSpeed
     })
+    if (spawning) armSpawnTimer()
   }
 
   function attachCanvas(element) {
@@ -916,8 +941,8 @@ export function createGame() {
 
   function endGame(isWin, reason = '') {
     state.gameRunning = false
-    clearInterval(spawnInterval)
-    spawnInterval = null
+    spawning = false
+    stopSpawnTimer()
     const msg = isWin
       ? '🎉 축하합니다! 200레벨 클리어! 게임 승리!'
       : `💀 게임 오버! ${reason || '적의 수가 너무 많습니다.'}`
@@ -947,7 +972,8 @@ export function createGame() {
 
   function dispose() {
     state.gameRunning = false
-    if (spawnInterval) clearInterval(spawnInterval)
+    spawning = false
+    stopSpawnTimer()
     if (buffCooldownTimer) clearInterval(buffCooldownTimer)
     if (rafId) cancelAnimationFrame(rafId)
   }
