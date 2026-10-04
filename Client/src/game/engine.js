@@ -550,11 +550,14 @@ export function createGame() {
   }
 
   function createFloatingGold(x, y, amount) {
-    if (typeof document === 'undefined') return
+    if (typeof document === 'undefined' || !canvas) return
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = rect.width / canvas.width
+    const scaleY = rect.height / canvas.height
     const floatEl = document.createElement('div')
-    floatEl.style.position = 'absolute'
-    floatEl.style.left = `${x}px`
-    floatEl.style.top = `${y}px`
+    floatEl.style.position = 'fixed'
+    floatEl.style.left = `${rect.left + x * scaleX}px`
+    floatEl.style.top = `${rect.top + y * scaleY}px`
     floatEl.style.color = '#ffdd00'
     floatEl.style.fontWeight = 'bold'
     floatEl.style.fontSize = '14px'
