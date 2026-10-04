@@ -1,12 +1,33 @@
 # structure
 
-2026-10-04 문서 골격 작성 시점의 저장소 구조다. 폴더나 파일이 바뀌면 이 문서를 갱신한다.
+2026-10-04 기준 저장소 구조다. Vue 클라이언트 `Client`를 반영했다. 폴더나 파일이 바뀌면 이 문서를 갱신한다.
 
 ```
 maple_unlucky_defense/
 ├── maple_unlucky_defense (51).html
 ├── README.md
 ├── AGENTS.md
+├── Client/
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── vite.config.js
+│   ├── .gitignore
+│   ├── README.md
+│   ├── scripts/
+│   │   └── check-rules.mjs
+│   └── src/
+│       ├── main.js
+│       ├── App.vue
+│       ├── styles/
+│       │   └── game.css
+│       ├── game/
+│       │   ├── constants.js
+│       │   └── engine.js
+│       └── components/
+│           ├── StartScreen.vue
+│           ├── GameScreen.vue
+│           └── ExplanationModal.vue
 ├── .agents/
 │   └── RULES.md
 ├── .Grok/
@@ -46,7 +67,8 @@ maple_unlucky_defense/
     │       └── records/
     │           ├── 0001.md
     │           ├── 0002.md
-    │           └── 0003.md
+    │           ├── 0003.md
+    │           └── 0004.md
     ├── Build-up/
     │   └── BUILD_UP.md
     ├── Changelog/
@@ -79,6 +101,23 @@ maple_unlucky_defense/
 | `README.md` | 플레이 규칙 설명. |
 | `AGENTS.md` | 루트에서 여러 도구가 읽는 작업 규칙 사본. |
 
+## Client
+
+Vue 3와 Vite로 만든 클라이언트다. `node_modules`와 `dist`는 `.gitignore`에 있어 이 목록에 넣지 않는다.
+
+| 경로 | 역할 |
+|---|---|
+| `Client/index.html` | Vite 진입 HTML. 제목과 글꼴 |
+| `Client/package.json` | `dev`, `build`, `check` 스크립트 |
+| `Client/vite.config.js` | Vue 플러그인, 포트 5173 |
+| `Client/src/main.js` | Vue 앱 시작 |
+| `Client/src/App.vue` | 화면 전환과 S/N 키 |
+| `Client/src/components/*.vue` | 시작 화면, 게임 화면, 설명 모달 |
+| `Client/src/game/constants.js` | 등급과 보스 레벨 |
+| `Client/src/game/engine.js` | 소환, 강화, 합성, 승천, 전투 루프 |
+| `Client/src/styles/game.css` | 원본 화면 스타일. 상단 바를 전장 위에 두기 위한 세로 flex만 더했다 |
+| `Client/scripts/check-rules.mjs` | 피해, 판매가, 강화, 합성, 보스 체력 확인 |
+
 ## 에이전트 폴더
 
 | 폴더 | 안의 파일 | 역할 |
@@ -101,7 +140,7 @@ maple_unlucky_defense/
 | `Branchs/Client` | `README.md` | 클라이언트 브랜치 설명 |
 | `Branchs/Server` | `README.md` | 서버 브랜치 설명 |
 | `Branchs/database` | `README.md` | 데이터베이스 브랜치 설명 |
-| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`, `records/0002.md`, `records/0003.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
+| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0004.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
 | `Build-up` | `BUILD_UP.md` | 확인된 준비 단계 |
 | `Changelog` | `CHANGELOG.md` | 시간순 변경 이력 |
 | `find_debug` | `README.md` | 디버그 기록 형식. 사건 기록은 아직 없다. |

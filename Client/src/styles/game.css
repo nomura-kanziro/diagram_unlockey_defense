@@ -1,0 +1,449 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(#0a0a1f, #1a0033);
+    color: #fff;
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.game-title {
+    font-size: 4.5rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #ff00aa, #00ffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(255, 0, 170, 0.5);
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 15px 50px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 10px;
+    transition: all 0.3s;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(#ff00aa, #cc0088);
+    color: white;
+}
+
+.btn-secondary {
+    background: #333;
+    color: #ddd;
+    border: 2px solid #666;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255,0,170,0.4);
+}
+
+.game-screen {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    position: relative;
+    min-height: 0;
+}
+
+.game-screen.active {
+    display: flex;
+}
+
+.top-ui {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: linear-gradient(#1a0033, #0f0022);
+    padding: 6px 12px;
+    border-bottom: 3px solid #ff00aa;
+    box-shadow: 0 3px 12px rgba(255, 0, 170, 0.3);
+    z-index: 50;
+    gap: 8px;
+    height: 42px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    background: rgba(0,0,0,0.5);
+    padding: 4px 10px;
+    border-radius: 15px;
+    border: 1px solid #555;
+    white-space: nowrap;
+}
+
+.stat-value {
+    font-weight: bold;
+    color: #00ffff;
+    font-size: 0.95rem;
+}
+
+.main-area {
+    display: flex;
+    flex: 1;
+    position: relative;
+    min-height: 0;
+}
+
+#game-canvas {
+    border: 4px solid #ff00aa;
+    border-radius: 50%;
+    box-shadow: 0 0 40px rgba(255, 0, 170, 0.6);
+    background: #0a0a1f;
+}
+
+.sidebar {
+    width: 240px;
+    background: rgba(15, 15, 35, 0.95);
+    padding: 10px;
+    overflow-y: auto;
+    border-left: 3px solid #00ffff;
+    font-size: 0.85rem;
+    max-height: 100vh;
+}
+
+.unit-list {
+    margin-bottom: 20px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.unit-list::-webkit-scrollbar {
+    width: 6px;
+}
+.unit-list::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+}
+
+.unit-card {
+    background: #1f1f3a;
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 2px solid #444;
+    position: relative;
+}
+
+.unit-card.rare { border-color: #00ff88; }
+.unit-card.epic { border-color: #aa00ff; }
+.unit-card.legendary { border-color: #ffcc00; }
+.unit-card.mythic { border-color: #ff0000; }
+
+.unit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.unit-name {
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.unit-stats {
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.unit-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 6px;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.upgrade-btn { background: #00aa66; color: white; }
+.sell-btn { background: #aa3333; color: white; }
+
+.action-panel {
+    background: #1a1a2e;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.action-title {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #00ffff;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+}
+
+.summon-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.3rem;
+    background: linear-gradient(#ffaa00, #cc8800);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.exchange-btn {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    font-weight: bold;
+}
+
+.exchange-btn.legend { background: #ffaa00; }
+.exchange-btn.mythic { background: #ff3300; }
+.exchange-btn.heaven { background: #00cc66; }
+
+.log {
+    height: 120px;
+    background: #111;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 0.8rem;
+    overflow-y: auto;
+    color: #0f0;
+    font-family: monospace;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.modal.open {
+    display: flex;
+}
+
+.modal-content {
+    background: #1a1a2e;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 90%;
+    border: 3px solid #ff00aa;
+}
+
+.tier {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.normal { background: #fff; color: #000; }
+.rare { background: #00ff88; color: #000; }
+.advanced { background: #aa00ff; color: #fff; }
+.relic { background: #ff8800; color: #000; }
+.epic { background: #00aaff; color: #fff; }
+.legend { background: #ffcc00; color: #000; }
+.mythic { background: #ff0000; color: #fff; }
+.heaven { background: #00cc66; color: #000; }
+.origin { background: #00ffff; color: #000; }
+.apocalypse { background: #666; color: #fff; }
+.mobius { background: #88ddff; color: #000; }
+
+.bottom-log-panel {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    width: 380px;
+    height: 160px;
+    background: rgba(10, 10, 30, 0.95);
+    border: 2px solid #00ff88;
+    border-radius: 12px;
+    padding: 10px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: #0f0;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+    z-index: 60;
+}
+
+.prob-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.next-round-btn {
+    padding: 8px 20px;
+    background: #00aa66;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.speed-wrap {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.speed-label {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.speed-btn {
+    padding: 4px 10px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+.field-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.hint {
+    font-size: 0.8rem;
+    color: #888;
+    text-align: center;
+}
+
+.hint-gold {
+    font-size: 0.75rem;
+    color: #ffcc00;
+    text-align: center;
+}
+
+.panel-note {
+    font-size: 0.7rem;
+    color: #888;
+    text-align: center;
+    margin-top: 6px;
+}
+
+.buff-cooldown {
+    font-size: 0.7rem;
+    color: #ffaa00;
+    text-align: center;
+    margin-top: 4px;
+}
+
+.ten-summon {
+    background: #ff8800;
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+
+.compact-panel {
+    padding: 10px;
+    font-size: 0.75rem;
+}
+
+.enemy-info {
+    line-height: 1.4;
+    color: #ffaa00;
+}
+
+.empty-units {
+    color: #666;
+    text-align: center;
+    padding: 10px;
+}
+
+.top-grade {
+    font-size: 0.7rem;
+    color: #888;
+    text-align: center;
+}
+
+.close-modal {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background: #ff00aa;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+}
+
+.tagline {
+    font-size: 1.5rem;
+    color: #aaa;
+    margin-bottom: 40px;
+}
+
+.start-inner {
+    text-align: center;
+}
+
+.explain-body {
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.explain-note {
+    color: #ffaa00;
+    font-weight: bold;
+}
+
+.modal-title {
+    color: #ff00aa;
+    text-align: center;
+}

@@ -49,12 +49,26 @@ canvas + 사이드바 표시
 
 데이터는 모두 페이지 메모리의 변수다. 저장, 계정, 네트워크 요청은 없다. 게임을 닫으면 진행은 사라진다.
 
+## Vue 클라이언트
+
+같은 게임을 루트 `Client`에서 Vue 3로 다시 구성했다. 원본 HTML은 수정하지 않았다. Git 브랜치 `Client`에 둔다.
+
+| 구성 | 위치 |
+|---|---|
+| 화면 | `StartScreen.vue`, `GameScreen.vue`, `ExplanationModal.vue` |
+| 상태와 전투 | `src/game/engine.js`의 reactive 상태와 `requestAnimationFrame` |
+| 등급 수치 | `src/game/constants.js` |
+| 스타일 | `src/styles/game.css` |
+
+브라우저가 Vite 개발 서버 또는 `npm run build` 결과를 연다. 저장, 계정, 서버 API는 여전히 없다. 게임을 닫으면 진행은 사라진다.
+
+`.game-screen`은 세로 방향 flex다. 원본 CSS는 방향을 지정하지 않았고, Vue 화면은 상단 바 아래에 전장과 사이드바를 둔다.
+
 ## 아직 없는 계층
 
 | 계층 | 상태 |
 |---|---|
-| Client | 단일 HTML 안의 캔버스와 DOM이 클라이언트 전부다. |
 | Server | 프로세스, API, 배포 서버가 없다. |
 | database | 접속 정보, 스키마, 저장 데이터가 없다. |
 
-이 세 계층의 브랜치 역할은 `Docs/Branchs`에 이름만 잡아 두었다. 구현 지시는 아직 없다.
+서버와 데이터베이스 브랜치의 구현 지시는 아직 없다.
