@@ -123,7 +123,7 @@ function levelColor(card) {
               :style="cardStyle(game.unitCard(unit))"
             >
               <div class="unit-header">
-                <span class="tier" :class="game.unitCard(unit).tier.class">{{ game.unitCard(unit).tier.name }}</span>
+                <span class="tier" :class="game.unitCard(unit).tier.class">{{ game.unitCard(unit).shapeLabel }} {{ game.unitCard(unit).tier.name }}</span>
                 <span
                   :style="{
                     fontSize: '0.75rem',

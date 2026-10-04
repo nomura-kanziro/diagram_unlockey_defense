@@ -9,7 +9,9 @@ import {
   TIER_ORDER,
   SYNTHESIS_MAP,
   isBossLevel,
-  MAX_UNITS
+  MAX_UNITS,
+  SHAPE_LABEL,
+  shapeForTier
 } from './constants.js'
 
 export function createGame() {
@@ -134,6 +136,7 @@ export function createGame() {
     const newUnit = {
       id: nextId(),
       tier: tierKey,
+      shape: shapeForTier(tierKey),
       level: 1 + state.globalLevelBonus,
       x: pos.x,
       y: pos.y,
@@ -141,7 +144,7 @@ export function createGame() {
       color: tier.color
     }
     state.units.push(newUnit)
-    addLog(`✨ ${tier.name} 유닛 소환! (Lv.${newUnit.level})`)
+    addLog(`✨ ${SHAPE_LABEL[newUnit.shape]} ${tier.name} 유닛 소환! (Lv.${newUnit.level})`)
     if (tier.prob < 1) addLog(`🎉 대박! ${tier.name} 등급이 나왔습니다!`)
   }
 
@@ -322,6 +325,7 @@ export function createGame() {
     state.units.push({
       id: nextId(),
       tier: 'apocalypse',
+      shape: 'circle',
       level: saved.level,
       x: saved.x,
       y: saved.y,
@@ -356,6 +360,7 @@ export function createGame() {
     state.units.push({
       id: nextId(),
       tier: 'mobius',
+      shape: 'circle',
       level: saved.level,
       x: saved.x,
       y: saved.y,
@@ -392,6 +397,7 @@ export function createGame() {
     state.units.push({
       id: nextId(),
       tier: nextTier,
+      shape: shapeForTier(nextTier, unit.shape || 'circle'),
       level: 1 + state.globalLevelBonus,
       x: pos.x,
       y: pos.y,
@@ -493,6 +499,7 @@ export function createGame() {
       state.units.push({
         id: nextId(),
         tier: targetTier,
+        shape: shapeForTier(targetTier),
         level: 1,
         x: pos.x,
         y: pos.y,
@@ -520,6 +527,7 @@ export function createGame() {
     else if (tier.sellable) action = 'sell'
     return {
       tier,
+      shapeLabel: SHAPE_LABEL[shapeForTier(unit.tier, unit.shape || 'circle')],
       dmg: calculateDamage(unit),
       interval: getAttackInterval(unit),
       canDoApocalypse,
@@ -759,15 +767,31 @@ export function createGame() {
     ctx.fillText('PORTAL', portalX, portalY + 3)
   }
 
+  function traceUnitShape(x, y, size, shape) {
+    ctx.beginPath()
+    if (shape === 'square') {
+      ctx.rect(x - size, y - size, size * 2, size * 2)
+      return
+    }
+    if (shape === 'triangle') {
+      ctx.moveTo(x, y - size)
+      ctx.lineTo(x + size, y + size * 0.86)
+      ctx.lineTo(x - size, y + size * 0.86)
+      ctx.closePath()
+      return
+    }
+    ctx.arc(x, y, size, 0, Math.PI * 2)
+  }
+
   function drawUnits() {
     state.units.forEach(unit => {
       const tier = TIERS[unit.tier]
       const size = tier.infinite ? 22 : (tier.aoe ? 18 : 14)
+      const shape = shapeForTier(unit.tier, unit.shape || 'circle')
       ctx.fillStyle = unit.color
       ctx.shadowColor = unit.color
       ctx.shadowBlur = tier.infinite ? 25 : 12
-      ctx.beginPath()
-      ctx.arc(unit.x, unit.y, size, 0, Math.PI * 2)
+      traceUnitShape(unit.x, unit.y, size, shape)
       ctx.fill()
       ctx.shadowBlur = 0
       ctx.strokeStyle = '#fff'
@@ -949,6 +973,7 @@ export function createGame() {
       state.units.push({
         id: nextId(),
         tier: tierKey,
+        shape: shapeForTier(tierKey),
         level: 1,
         x: pos.x,
         y: pos.y,

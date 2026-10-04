@@ -38,3 +38,20 @@ export const BOSS_LEVELS = [30, 65, 87, 104, 122, 145, 174, 180, 190, 195, 199, 
 export function isBossLevel(level) {
   return BOSS_LEVELS.includes(level)
 }
+
+export const SHAPES = ['circle', 'triangle', 'square']
+
+export const SHAPE_LABEL = {
+  circle: '원형',
+  triangle: '삼각형',
+  square: '사각형'
+}
+
+export const CIRCLE_ONLY_TIERS = ['apocalypse', 'mobius']
+
+export function shapeForTier(tierKey, roll = Math.random()) {
+  if (CIRCLE_ONLY_TIERS.includes(tierKey)) return 'circle'
+  if (SHAPES.includes(roll)) return roll
+  const index = Math.min(SHAPES.length - 1, Math.floor(Number(roll) * SHAPES.length))
+  return SHAPES[index]
+}

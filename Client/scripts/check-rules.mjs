@@ -1,5 +1,5 @@
 import { createGame } from '../src/game/engine.js'
-import { TIERS, TIER_ORDER, MAX_UNITS } from '../src/game/constants.js'
+import { TIERS, TIER_ORDER, MAX_UNITS, shapeForTier } from '../src/game/constants.js'
 
 const failures = []
 function expect(name, actual, expected) {
@@ -172,6 +172,21 @@ for (let i = 0; i < 90; i++) tenGame.state.units.push(makeUnit(3000 + i, 'normal
 tenGame.summonTenTimes()
 expect('90마리에서 10연차 거절', tenGame.state.units.length, 90)
 expect('10연차 거절 후 골드', tenGame.state.gold, 100)
+
+expect('종말 모양', shapeForTier('apocalypse', 'triangle'), 'circle')
+expect('뫼비우스 모양', shapeForTier('mobius', 'square'), 'circle')
+expect('굴림 0 모양', shapeForTier('normal', 0), 'circle')
+expect('굴림 중간 모양', shapeForTier('normal', 0.5), 'triangle')
+expect('굴림 끝 모양', shapeForTier('normal', 0.99), 'square')
+const shaped = createGame()
+shaped.state.units.push(
+  { id: 1, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 2, tier: 'normal', shape: 'triangle', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 3, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' }
+)
+shaped.synthesizeUnit(shaped.state.units[0])
+expect('합성 결과 모양', shaped.state.units[0].shape, 'square')
+expect('카드 모양 이름', shaped.unitCard(shaped.state.units[0]).shapeLabel, '사각형')
 
 if (failures.length) {
   console.error(failures.join('\n'))
