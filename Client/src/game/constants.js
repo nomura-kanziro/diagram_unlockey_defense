@@ -55,3 +55,16 @@ export function shapeForTier(tierKey, roll = Math.random()) {
   const index = Math.min(SHAPES.length - 1, Math.floor(Number(roll) * SHAPES.length))
   return SHAPES[index]
 }
+
+export const SHAPE_COLLECTION_TIERS = ['normal', 'rare', 'advanced', 'relic', 'epic', 'legendary', 'mythic']
+
+export const COLLECTION_DEFS = [
+  { id: 'circle', title: '원형 컬렉션', kind: 'shape', shape: 'circle', rewardTier: 'heaven', detail: '원형 일반~신화(성령 제외) → 대천 원형' },
+  { id: 'triangle', title: '삼각형 컬렉션', kind: 'shape', shape: 'triangle', rewardTier: 'heaven', detail: '삼각형 일반~신화(성령 제외) → 대천 삼각형' },
+  { id: 'square', title: '사각형 컬렉션', kind: 'shape', shape: 'square', rewardTier: 'heaven', detail: '사각형 일반~신화(성령 제외) → 대천 사각형' },
+  { id: 'advanced', title: '고급 컬렉션', kind: 'spread', tier: 'advanced', gold: 150, detail: '세 모양의 고급 → 150골드' },
+  { id: 'relic', title: '유물 컬렉션', kind: 'spread', tier: 'relic', gold: 250, detail: '세 모양의 유물 → 250골드' },
+  { id: 'epic', title: '서사 컬렉션', kind: 'spread', tier: 'epic', gold: 300, rewardTier: 'legendary', detail: '세 모양의 서사 → 무작위 전설 + 300골드' },
+  { id: 'legendary', title: '전설 컬렉션', kind: 'spread', tier: 'legendary', gold: 400, rewardTier: 'mythic', detail: '세 모양의 전설 → 400골드 + 무작위 신화' },
+  { id: 'seongryeong', title: '성령 컬렉션', kind: 'spread', tier: 'seongryeong', gold: 500, rewardTier: 'origin', detail: '세 모양의 성령 → 500골드 + 무작위 태초' }
+]

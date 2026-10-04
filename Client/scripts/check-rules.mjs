@@ -1,5 +1,5 @@
 import { createGame } from '../src/game/engine.js'
-import { TIERS, TIER_ORDER, MAX_UNITS, shapeForTier } from '../src/game/constants.js'
+import { TIERS, TIER_ORDER, MAX_UNITS, SHAPES, SHAPE_COLLECTION_TIERS, shapeForTier } from '../src/game/constants.js'
 
 const failures = []
 function expect(name, actual, expected) {
@@ -187,6 +187,52 @@ shaped.state.units.push(
 shaped.synthesizeUnit(shaped.state.units[0])
 expect('합성 결과 모양', shaped.state.units[0].shape, 'square')
 expect('카드 모양 이름', shaped.unitCard(shaped.state.units[0]).shapeLabel, '사각형')
+
+function putUnit(game, shape, tier, id) {
+  game.state.units.push({ id, tier, shape, level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' })
+}
+
+const shapeCollection = createGame()
+let nextCollectionId = 1
+for (const tier of SHAPE_COLLECTION_TIERS) {
+  if (tier === 'mythic') continue
+  putUnit(shapeCollection, 'circle', tier, nextCollectionId++)
+}
+expect('신화 없는 원형 컬렉션', shapeCollection.collectionView().find(item => item.id === 'circle').ready, false)
+putUnit(shapeCollection, 'circle', 'mythic', nextCollectionId++)
+expect('원형 컬렉션 준비', shapeCollection.collectionView().find(item => item.id === 'circle').ready, true)
+shapeCollection.claimCollection('circle')
+expect('원형 컬렉션 대천', shapeCollection.state.units.filter(unit => unit.tier === 'heaven' && unit.shape === 'circle').length, 1)
+expect('원형 컬렉션 달성', shapeCollection.state.claimedCollections.circle, true)
+shapeCollection.claimCollection('circle')
+expect('원형 컬렉션 한 번', shapeCollection.state.units.filter(unit => unit.tier === 'heaven').length, 1)
+
+const spread = createGame()
+spread.state.gold = 0
+for (const shape of SHAPES) putUnit(spread, shape, 'advanced', nextCollectionId++)
+spread.claimCollection('advanced')
+expect('고급 컬렉션 골드', spread.state.gold, 150)
+spread.claimCollection('advanced')
+expect('고급 컬렉션 한 번', spread.state.gold, 150)
+
+const spirit = createGame()
+spirit.state.gold = 0
+for (const shape of SHAPES) putUnit(spirit, shape, 'seongryeong', nextCollectionId++)
+const savedRandom = Math.random
+Math.random = () => 0
+spirit.claimCollection('seongryeong')
+Math.random = savedRandom
+expect('성령 컬렉션 골드', spirit.state.gold, 500)
+expect('성령 컬렉션 태초', spirit.state.units.filter(unit => unit.tier === 'origin' && unit.shape === 'circle').length, 1)
+spirit.claimCollection('seongryeong')
+expect('성령 컬렉션 한 번', spirit.state.units.filter(unit => unit.tier === 'origin').length, 1)
+
+const blocked = createGame()
+for (const tier of SHAPE_COLLECTION_TIERS) putUnit(blocked, 'square', tier, nextCollectionId++)
+while (blocked.state.units.length < MAX_UNITS) putUnit(blocked, 'circle', 'normal', nextCollectionId++)
+blocked.claimCollection('square')
+expect('자리 없으면 컬렉션 유지', blocked.state.claimedCollections.square, false)
+expect('자리 없으면 대천 없음', blocked.state.units.some(unit => unit.tier === 'heaven'), false)
 
 if (failures.length) {
   console.error(failures.join('\n'))

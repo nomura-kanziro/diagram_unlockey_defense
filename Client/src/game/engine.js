@@ -11,6 +11,9 @@ import {
   isBossLevel,
   MAX_UNITS,
   SHAPE_LABEL,
+  SHAPES,
+  SHAPE_COLLECTION_TIERS,
+  COLLECTION_DEFS,
   shapeForTier
 } from './constants.js'
 
@@ -34,6 +37,16 @@ export function createGame() {
     globalLevelBonus: 0,
     currentEnhanceCost: 10,
     singleEnhanceCount: 0,
+    claimedCollections: {
+      circle: false,
+      triangle: false,
+      square: false,
+      advanced: false,
+      relic: false,
+      epic: false,
+      legendary: false,
+      seongryeong: false
+    },
     explanationOpen: false,
     buffCooldownText: ''
   })
@@ -536,6 +549,70 @@ export function createGame() {
     }
   }
 
+  function unitShape(unit) {
+    return shapeForTier(unit.tier, unit.shape || 'circle')
+  }
+
+  function ownsShapeTier(shape, tier) {
+    return state.units.some(unit => unit.tier === tier && unitShape(unit) === shape)
+  }
+
+  function collectionDef(id) {
+    return COLLECTION_DEFS.find(item => item.id === id)
+  }
+
+  function collectionComplete(def) {
+    if (def.kind === 'shape') return SHAPE_COLLECTION_TIERS.every(tier => ownsShapeTier(def.shape, tier))
+    return SHAPES.every(shape => ownsShapeTier(shape, def.tier))
+  }
+
+  function grantCollectionUnit(tier, shape) {
+    if (state.units.length >= MAX_UNITS) {
+      addLog(`⚠️ 유닛 최대 수 (${MAX_UNITS}마리)라 컬렉션 보상을 받지 못했습니다.`)
+      return null
+    }
+    const pos = placeInInnerCircle()
+    const finalShape = shapeForTier(tier, shape || Math.random())
+    state.units.push({
+      id: nextId(),
+      tier,
+      shape: finalShape,
+      level: 1 + state.globalLevelBonus,
+      x: pos.x,
+      y: pos.y,
+      lastAttack: Date.now(),
+      color: TIERS[tier].color
+    })
+    return finalShape
+  }
+
+  function claimCollection(id) {
+    const def = collectionDef(id)
+    if (!def || state.claimedCollections[id] || !collectionComplete(def)) return
+    const rewardText = []
+    if (def.rewardTier) {
+      const given = grantCollectionUnit(def.rewardTier, def.kind === 'shape' ? def.shape : null)
+      if (!given) return
+      rewardText.push(`${SHAPE_LABEL[given]} ${TIERS[def.rewardTier].name}`)
+    }
+    if (def.gold) {
+      state.gold += def.gold
+      rewardText.push(`${def.gold}골드`)
+    }
+    state.claimedCollections[id] = true
+    addLog(`컬렉션 달성: ${def.title} → ${rewardText.join(' + ')}`)
+  }
+
+  function collectionView() {
+    return COLLECTION_DEFS.map(def => ({
+      id: def.id,
+      title: def.title,
+      detail: def.detail,
+      claimed: !!state.claimedCollections[def.id],
+      ready: !state.claimedCollections[def.id] && collectionComplete(def)
+    }))
+  }
+
   function enemyHealthView() {
     const baseHealth = 10 * Math.pow(1.1, state.currentLevel - 1)
     const bossOnField = state.enemies.find(e => e.isBoss || e.isDeathmatch)
@@ -961,6 +1038,7 @@ export function createGame() {
     state.units.splice(0, state.units.length)
     state.logMessages.splice(0, state.logMessages.length)
     state.bottomLogs.splice(0, state.bottomLogs.length)
+    Object.keys(state.claimedCollections).forEach(key => { state.claimedCollections[key] = false })
     state.gameRunning = true
     state.started = true
     lastTime = Date.now()
@@ -1046,6 +1124,8 @@ export function createGame() {
     performMobiusCombo,
     unitCard,
     enemyHealthView,
+    collectionView,
+    claimCollection,
     spawnEnemy,
     nextRound,
     setGameSpeed,

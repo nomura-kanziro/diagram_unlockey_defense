@@ -212,6 +212,26 @@ function levelColor(card) {
             </template>
           </div>
         </div>
+
+        <div class="action-panel" id="collection-panel">
+          <div class="action-title">컬렉션</div>
+          <div
+            v-for="item in game.collectionView()"
+            :key="item.id"
+            class="collection-row"
+          >
+            <div class="collection-copy">
+              <div class="collection-name">{{ item.title }}</div>
+              <div class="collection-detail">{{ item.detail }}</div>
+            </div>
+            <button
+              class="collection-btn"
+              :data-collection="item.id"
+              :disabled="!item.ready"
+              @click="game.claimCollection(item.id)"
+            >{{ item.claimed ? '달성됨' : '달성 완료' }}</button>
+          </div>
+        </div>
       </div>
 
       <div id="bottom-log-panel" class="bottom-log-panel">
