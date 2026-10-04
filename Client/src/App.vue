@@ -6,6 +6,7 @@ import GameScreen from './components/GameScreen.vue'
 import ExplanationModal from './components/ExplanationModal.vue'
 
 const game = createGame()
+if (import.meta.env.DEV) window.__MAPLE_GAME__ = game
 
 function onKey(event) {
   if (!game.state.gameRunning) return

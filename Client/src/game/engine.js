@@ -42,8 +42,22 @@ export function createGame() {
   let spawnedCount = 0
   let spawnTarget = 0
   let spawning = false
+  let nextUnitId = 1
   let rafId = 0
   let buffCooldownTimer = null
+
+  function nextId() {
+    nextUnitId += 1
+    return nextUnitId
+  }
+
+  function resolveUnit(unitOrId) {
+    if (unitOrId && typeof unitOrId === 'object') {
+      return state.units.includes(unitOrId) ? unitOrId : null
+    }
+    const matches = state.units.filter(u => u.id === unitOrId)
+    return matches.length === 1 ? matches[0] : null
+  }
 
   function addLog(msg) {
     const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
@@ -115,7 +129,7 @@ export function createGame() {
     const tier = TIERS[tierKey]
     const pos = placeInInnerCircle()
     const newUnit = {
-      id: Date.now(),
+      id: nextId(),
       tier: tierKey,
       level: 1 + state.globalLevelBonus,
       x: pos.x,
@@ -158,8 +172,8 @@ export function createGame() {
     }
   }
 
-  function ascendUnit(unitId) {
-    const unit = state.units.find(u => u.id === unitId)
+  function ascendUnit(unitOrId) {
+    const unit = resolveUnit(unitOrId)
     if (!unit) return
     const currentTier = unit.tier
     let targetTier = null
@@ -276,20 +290,16 @@ export function createGame() {
     updateBuffCooldown()
   }
 
-  function performApocalypseCombo(unitId) {
+  function performApocalypseCombo(unitOrId) {
     if (!canPerformApocalypseCombo()) {
       addLog('종말 조합 재료가 부족합니다.')
       return
     }
-    const targetUnit = state.units.find(u => u.id === unitId && u.tier === 'origin')
-    if (!targetUnit) return
+    const targetUnit = resolveUnit(unitOrId)
+    if (!targetUnit || targetUnit.tier !== 'origin') return
     const saved = { level: targetUnit.level, x: targetUnit.x, y: targetUnit.y }
-    for (let i = state.units.length - 1; i >= 0; i--) {
-      if (state.units[i].id === unitId) {
-        state.units.splice(i, 1)
-        break
-      }
-    }
+    const originIndex = state.units.indexOf(targetUnit)
+    if (originIndex !== -1) state.units.splice(originIndex, 1)
     const toConsume = { heaven: 2, mythic: 2, seongryeong: 3 }
     for (const tier in toConsume) {
       let needed = toConsume[tier]
@@ -301,7 +311,7 @@ export function createGame() {
       }
     }
     state.units.push({
-      id: Date.now(),
+      id: nextId(),
       tier: 'apocalypse',
       level: saved.level,
       x: saved.x,
@@ -312,13 +322,13 @@ export function createGame() {
     addLog('🌌 종말 조합 성공! 태초가 종말로 진화했습니다!')
   }
 
-  function performMobiusCombo(unitId) {
+  function performMobiusCombo(unitOrId) {
     if (!canPerformMobiusCombo()) {
       addLog('뫼비우스 조합 조건이 충족되지 않습니다. (종말 2 + 태초 2 + 버프 활성화 필요)')
       return
     }
-    const targetUnit = state.units.find(u => u.id === unitId && u.tier === 'apocalypse')
-    if (!targetUnit) return
+    const targetUnit = resolveUnit(unitOrId)
+    if (!targetUnit || targetUnit.tier !== 'apocalypse') return
     const saved = { level: targetUnit.level, x: targetUnit.x, y: targetUnit.y }
     let consumedApocalypse = 0
     let consumedOrigin = 0
@@ -335,7 +345,7 @@ export function createGame() {
       }
     }
     state.units.push({
-      id: Date.now(),
+      id: nextId(),
       tier: 'mobius',
       level: saved.level,
       x: saved.x,
@@ -346,8 +356,8 @@ export function createGame() {
     addLog('♾️ 뫼비우스 조합 성공! 종말이 뫼비우스로 진화했습니다!')
   }
 
-  function synthesizeUnit(unitId) {
-    const unit = state.units.find(u => u.id === unitId)
+  function synthesizeUnit(unitOrId) {
+    const unit = resolveUnit(unitOrId)
     if (!unit) return
     const currentTier = unit.tier
     const nextTier = SYNTHESIS_MAP[currentTier]
@@ -360,16 +370,18 @@ export function createGame() {
       addLog(`합성하려면 ${TIERS[currentTier].name}이 3개 이상 필요합니다. (현재 ${sameTier.length}개)`)
       return
     }
-    let removed = 0
-    for (let i = state.units.length - 1; i >= 0 && removed < 3; i--) {
-      if (state.units[i].tier === currentTier) {
-        state.units.splice(i, 1)
-        removed++
-      }
+    const picked = [unit]
+    for (let i = state.units.length - 1; i >= 0 && picked.length < 3; i--) {
+      const candidate = state.units[i]
+      if (candidate.tier === currentTier && !picked.includes(candidate)) picked.push(candidate)
+    }
+    for (const target of picked) {
+      const index = state.units.indexOf(target)
+      if (index !== -1) state.units.splice(index, 1)
     }
     const pos = placeInInnerCircle()
     state.units.push({
-      id: Date.now(),
+      id: nextId(),
       tier: nextTier,
       level: 1 + state.globalLevelBonus,
       x: pos.x,
@@ -429,10 +441,10 @@ export function createGame() {
     return Math.floor(sellPrice)
   }
 
-  function sellUnit(unitId) {
-    const index = state.units.findIndex(u => u.id === unitId)
-    if (index === -1) return
-    const unit = state.units[index]
+  function sellUnit(unitOrId) {
+    const unit = resolveUnit(unitOrId)
+    if (!unit) return
+    const index = state.units.indexOf(unit)
     if (index === -1) return
     const tier = TIERS[unit.tier]
     if (!tier.sellable) {
@@ -470,7 +482,7 @@ export function createGame() {
     if (Math.random() * 100 <= successRate) {
       const pos = placeInInnerCircle()
       state.units.push({
-        id: Date.now(),
+        id: nextId(),
         tier: targetTier,
         level: 1,
         x: pos.x,
@@ -926,7 +938,7 @@ export function createGame() {
       const tierKey = Math.random() > 0.7 ? 'rare' : 'normal'
       const pos = placeInInnerCircle()
       state.units.push({
-        id: Date.now() + state.units.length,
+        id: nextId(),
         tier: tierKey,
         level: 1,
         x: pos.x,
@@ -963,11 +975,11 @@ export function createGame() {
   }
 
   function onUnitAction(unit, action) {
-    if (action === 'mobius') performMobiusCombo(unit.id)
-    else if (action === 'apocalypse') performApocalypseCombo(unit.id)
-    else if (action === 'synthesize') synthesizeUnit(unit.id)
-    else if (action === 'sell') sellUnit(unit.id)
-    else if (action === 'ascend') ascendUnit(unit.id)
+    if (action === 'mobius') performMobiusCombo(unit)
+    else if (action === 'apocalypse') performApocalypseCombo(unit)
+    else if (action === 'synthesize') synthesizeUnit(unit)
+    else if (action === 'sell') sellUnit(unit)
+    else if (action === 'ascend') ascendUnit(unit)
   }
 
   function dispose() {

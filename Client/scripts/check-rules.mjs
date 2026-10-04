@@ -57,6 +57,28 @@ game.summonTenTimes()
 expect('10연차 후 유닛 수', game.state.units.length, 11)
 expect('10연차 후 골드', game.state.gold, 0)
 
+function makeUnit(id, tier) {
+  return { id, tier, level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' }
+}
+
+const mixed = createGame()
+const sharedId = 7
+mixed.state.units.push(
+  makeUnit(sharedId, 'normal'),
+  makeUnit(sharedId, 'normal'),
+  makeUnit(sharedId, 'normal'),
+  makeUnit(sharedId, 'rare'),
+  makeUnit(sharedId, 'rare'),
+  makeUnit(sharedId, 'rare')
+)
+mixed.synthesizeUnit(sharedId)
+expect('겹친 id로는 다른 등급을 합치지 않음', mixed.state.units.length, 6)
+const clickedRare = mixed.state.units.find(u => u.tier === 'rare')
+mixed.onUnitAction(clickedRare, 'synthesize')
+expect('레어 합성 후 일반 유지', mixed.state.units.filter(u => u.tier === 'normal').length, 3)
+expect('레어 합성 후 레어 소모', mixed.state.units.filter(u => u.tier === 'rare').length, 0)
+expect('레어 합성 결과', mixed.state.units.filter(u => u.tier === 'advanced').length, 1)
+
 const originalSetInterval = globalThis.setInterval
 const originalClearInterval = globalThis.clearInterval
 const timers = []
