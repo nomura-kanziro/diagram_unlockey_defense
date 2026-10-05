@@ -1128,6 +1128,7 @@ export function createGame() {
     enemyHealthView,
     collectionView,
     claimCollection,
+    performAttacks,
     spawnEnemy,
     nextRound,
     setGameSpeed,

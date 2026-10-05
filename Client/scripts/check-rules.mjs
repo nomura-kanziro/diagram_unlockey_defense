@@ -241,6 +241,28 @@ blocked.claimCollection('square')
 expect('자리 없으면 컬렉션 유지', blocked.state.claimedCollections.square, false)
 expect('자리 없으면 대천 없음', blocked.state.units.some(unit => unit.tier === 'heaven'), false)
 
+const splash = createGame()
+splash.state.enemyDefense = 100
+splash.state.units.push({
+  id: 1,
+  tier: 'mobius',
+  shape: 'circle',
+  level: 1,
+  x: 350,
+  y: 350,
+  lastAttack: 0,
+  color: '#88ddff'
+})
+splash.state.enemies.push(
+  { id: 1, x: 350, y: 350, health: 10000, maxHealth: 10000, isBoss: false, isDeathmatch: false },
+  { id: 2, x: 450, y: 350, health: 10000, maxHealth: 10000, isBoss: false, isDeathmatch: false },
+  { id: 3, x: 550, y: 350, health: 10000, maxHealth: 10000, isBoss: false, isDeathmatch: false }
+)
+splash.performAttacks()
+expect('뫼비우스 주 피해', splash.state.enemies[0].health, 9850)
+expect('뫼비우스 무한 스플래시', splash.state.enemies[1].health, 9880)
+expect('뫼비우스 범위 밖', splash.state.enemies[2].health, 10000)
+
 if (failures.length) {
   console.error(failures.join('\n'))
   process.exit(1)
