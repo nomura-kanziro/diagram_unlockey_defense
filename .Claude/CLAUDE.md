@@ -49,11 +49,11 @@
 
 2026-10-14에 `Client`를 `master`에 넣었던 병합은 취소했다. `master`는 병합 전 커밋 `adbef34f08df944c22dc789d609d16f93982534e`를 가리킨다.
 
-`docs`의 `14f639a1c2d5fac58c51a6bdac9cc578305f834b`까지는 `Client` 역사에 이미 들어 있다. `backup-before-split`은 커밋을 나누기 전 백업이라 다시 병합하지 않는다. `Server`와 `database` 브랜치는 사용자 지시 없이 만들지 않는다.
+`docs`와 `backup-before-split`은 2026-10-14에 `Devolop`으로 병합했다. `backup-before-split`의 파일 내용은 나누기 전 스냅샷이라 현재 트리를 유지했다. `Server`와 `database` 브랜치는 사용자 지시 없이 만들지 않는다.
 
 ## 저장소 현황
 
 - 플레이하는 클라이언트는 루트 `Client`의 Vue 앱이다. 원본 `maple_unlucky_defense (51).html`은 변경 지시가 없으면 수정하지 않는다.
 - 서버 프로세스와 데이터베이스는 아직 없다.
 - 지금은 개발 모드다. 병합은 `Devolop`에만 하고, `master`는 완성이 끝난 뒤에만 병합한다.
-- Git 브랜치는 `master`, `Devolop`, `Client`, `docs`, `backup-before-split`이 있다. `backup-before-split`은 백업이라 병합하지 않는다.
+- Git 브랜치는 `master`, `Devolop`, `Client`, `docs`, `backup-before-split`이 있다. `docs`와 `backup-before-split`의 커밋은 `Devolop`에 들어 있다.
