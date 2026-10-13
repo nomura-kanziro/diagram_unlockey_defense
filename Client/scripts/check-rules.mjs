@@ -225,12 +225,18 @@ expect('고급 컬렉션 한 번', spread.state.gold, 150)
 const spirit = createGame()
 spirit.state.gold = 0
 for (const shape of SHAPES) putUnit(spirit, shape, 'seongryeong', nextCollectionId++)
+expect('성령만으로는 미달성', spirit.collectionView().find(item => item.id === 'seongryeong').ready, false)
+spirit.claimCollection('seongryeong')
+expect('종말 없이 골드', spirit.state.gold, 0)
+putUnit(spirit, 'circle', 'apocalypse', nextCollectionId++)
+expect('성령 컬렉션 준비', spirit.collectionView().find(item => item.id === 'seongryeong').ready, true)
 const savedRandom = Math.random
 Math.random = () => 0
 spirit.claimCollection('seongryeong')
 Math.random = savedRandom
 expect('성령 컬렉션 골드', spirit.state.gold, 500)
 expect('성령 컬렉션 태초', spirit.state.units.filter(unit => unit.tier === 'origin' && unit.shape === 'circle').length, 1)
+expect('성령과 종말은 남음', spirit.state.units.filter(unit => unit.tier === 'seongryeong' || unit.tier === 'apocalypse').length, 4)
 spirit.claimCollection('seongryeong')
 expect('성령 컬렉션 한 번', spirit.state.units.filter(unit => unit.tier === 'origin').length, 1)
 
@@ -262,6 +268,27 @@ splash.performAttacks()
 expect('뫼비우스 주 피해', splash.state.enemies[0].health, 9850)
 expect('뫼비우스 무한 스플래시', splash.state.enemies[1].health, 9880)
 expect('뫼비우스 범위 밖', splash.state.enemies[2].health, 10000)
+const apocalypse = { tier: 'apocalypse', level: 9 }
+expect('종말 고정 피해', createGame().calculateDamage(apocalypse), 15000)
+
+const skills = createGame()
+skills.state.enemyDefense = 12
+const apocalypseUnit = { id: 1, tier: 'apocalypse', shape: 'circle', level: 1, x: 0, y: 0, lastAttack: 0, color: '#666' }
+const mobiusUnit = { id: 2, tier: 'mobius', shape: 'circle', level: 1, x: 0, y: 0, lastAttack: 0, color: '#88ddff' }
+skills.state.units.push(apocalypseUnit, mobiusUnit)
+skills.state.enemies.push(
+  { id: 1, x: 0, y: 0, health: 1000, maxHealth: 1000, isBoss: false, isDeathmatch: false },
+  { id: 2, x: 400, y: 0, health: 100, maxHealth: 100, isBoss: false, isDeathmatch: false }
+)
+skills.onUnitAction(apocalypseUnit, 'lightning')
+expect('뇌전 방어 제거', skills.state.enemyDefense, 0)
+skills.onUnitAction(mobiusUnit, 'ruin')
+expect('파멸 가까운 적', skills.state.enemies[0].health, 930)
+expect('파멸 먼 적', skills.state.enemies[1].health, 93)
+skills.onUnitAction(mobiusUnit, 'ruin')
+expect('파멸 한 번', skills.state.enemies[0].health, 930)
+expect('종말 스킬', skills.unitCard(apocalypseUnit).skill, 'lightning')
+expect('뫼비우스 스킬 사용', skills.unitCard(mobiusUnit).skillUsed, true)
 
 const seller = createGame()
 seller.state.gold = 30
@@ -283,6 +310,20 @@ expect('묶음 판매 골드', seller.state.gold, 42)
 seller.sellMatchingUnits('square', 'legendary')
 expect('전설은 묶음 판매 불가', seller.state.units.filter(unit => unit.tier === 'legendary').length, 1)
 expect('거절 후 골드', seller.state.gold, 42)
+seller.state.units.push(
+  { id: 6, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 7, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 8, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 9, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 10, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 11, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 12, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' }
+)
+expect('합성 묶음 횟수', seller.synthBundleView('square', 'normal').sets, 2)
+seller.synthesizeMatchingUnits('square', 'normal')
+expect('사각형 일반 나머지', seller.state.units.filter(unit => unit.tier === 'normal' && unit.shape === 'square').length, 1)
+expect('사각형 레어 합성', seller.state.units.filter(unit => unit.tier === 'rare' && unit.shape === 'square').length, 3)
+expect('삼각형은 합성되지 않음', seller.state.units.filter(unit => unit.shape === 'triangle' && unit.tier === 'normal').length, 1)
 
 if (failures.length) {
   console.error(failures.join('\n'))

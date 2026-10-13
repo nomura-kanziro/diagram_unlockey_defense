@@ -525,6 +525,75 @@ export function createGame() {
     addLog(`${SHAPE_LABEL[shape]} ${tier.name} ${targets.length}개 판매 (+${total}원)`)
   }
 
+  function synthBundleView(shape, tierKey) {
+    const nextTier = SYNTHESIS_MAP[tierKey]
+    const count = matchingSellUnits(shape, tierKey).length
+    const sets = nextTier ? Math.floor(count / 3) : 0
+    return {
+      count,
+      sets,
+      nextName: nextTier ? TIERS[nextTier].name : '',
+      ready: sets > 0
+    }
+  }
+
+  function synthesizeMatchingUnits(shape, tierKey) {
+    const tier = TIERS[tierKey]
+    const nextTier = SYNTHESIS_MAP[tierKey]
+    if (!tier || !SHAPE_LABEL[shape]) return
+    if (!nextTier) {
+      addLog('이 등급은 합성할 수 없습니다.')
+      return
+    }
+    const targets = matchingSellUnits(shape, tierKey)
+    const sets = Math.floor(targets.length / 3)
+    if (sets < 1) {
+      addLog(`합성하려면 같은 모양의 ${tier.name}이 3개 이상 필요합니다. (현재 ${targets.length}개)`)
+      return
+    }
+    const consumed = targets.slice(0, sets * 3)
+    for (const unit of consumed) {
+      const index = state.units.indexOf(unit)
+      if (index !== -1) state.units.splice(index, 1)
+    }
+    const resultShape = shapeForTier(nextTier, shape)
+    for (let i = 0; i < sets; i++) {
+      const pos = placeInInnerCircle()
+      state.units.push({
+        id: nextId(),
+        tier: nextTier,
+        shape: resultShape,
+        level: 1 + state.globalLevelBonus,
+        x: pos.x,
+        y: pos.y,
+        lastAttack: Date.now(),
+        color: TIERS[nextTier].color
+      })
+    }
+    addLog(`🔄 ${SHAPE_LABEL[shape]} ${tier.name} ${sets * 3}개 → ${SHAPE_LABEL[resultShape]} ${TIERS[nextTier].name} ${sets}개 합성`)
+  }
+
+  function useLightning(unitOrId) {
+    const unit = resolveUnit(unitOrId)
+    if (!unit || unit.tier !== 'apocalypse') return
+    state.enemyDefense = 0
+    addLog('뇌전! 적 방어력이 제거되었습니다.')
+  }
+
+  function useRuinStrike(unitOrId) {
+    const unit = resolveUnit(unitOrId)
+    if (!unit || unit.tier !== 'mobius') return
+    if (unit.ruinUsed) {
+      addLog('파멸의 일격은 한 번만 사용할 수 있습니다.')
+      return
+    }
+    unit.ruinUsed = true
+    state.enemies.forEach(enemy => {
+      enemy.health -= Math.floor(enemy.maxHealth * 0.07)
+    })
+    addLog('파멸의 일격! 모든 적의 최대 체력 7%를 깎았습니다.')
+  }
+
   function exchangeUnit(targetTier) {
     let cost
     let successRate
@@ -585,7 +654,9 @@ export function createGame() {
       interval: getAttackInterval(unit),
       canDoApocalypse,
       canDoMobius,
-      action
+      action,
+      skill: unit.tier === 'apocalypse' ? 'lightning' : (unit.tier === 'mobius' ? 'ruin' : ''),
+      skillUsed: !!unit.ruinUsed
     }
   }
 
@@ -603,7 +674,10 @@ export function createGame() {
 
   function collectionComplete(def) {
     if (def.kind === 'shape') return SHAPE_COLLECTION_TIERS.every(tier => ownsShapeTier(def.shape, tier))
-    return SHAPES.every(shape => ownsShapeTier(shape, def.tier))
+    const spread = SHAPES.every(shape => ownsShapeTier(shape, def.tier))
+    if (!spread) return false
+    if (def.extraTier) return state.units.some(unit => unit.tier === def.extraTier)
+    return true
   }
 
   function grantCollectionUnit(tier, shape) {
@@ -1132,6 +1206,8 @@ export function createGame() {
     else if (action === 'synthesize') synthesizeUnit(unit)
     else if (action === 'sell') sellUnit(unit)
     else if (action === 'ascend') ascendUnit(unit)
+    else if (action === 'lightning') useLightning(unit)
+    else if (action === 'ruin') useRuinStrike(unit)
   }
 
   function dispose() {
@@ -1160,6 +1236,8 @@ export function createGame() {
     sellUnit,
     sellBundleView,
     sellMatchingUnits,
+    synthBundleView,
+    synthesizeMatchingUnits,
     ascendUnit,
     exchangeUnit,
     performApocalypseCombo,
