@@ -708,14 +708,25 @@ export function createGame() {
     return finalShape
   }
 
+  function collectionRewards(def) {
+    if (def.rewardTiers) return def.rewardTiers.map(tier => ({ tier, shape: null }))
+    if (def.rewardTier) return [{ tier: def.rewardTier, shape: def.kind === 'shape' ? def.shape : null }]
+    return []
+  }
+
   function claimCollection(id) {
     const def = collectionDef(id)
     if (!def || state.claimedCollections[id] || !collectionComplete(def)) return
+    const rewards = collectionRewards(def)
+    if (state.units.length + rewards.length > MAX_UNITS) {
+      addLog(`⚠️ 유닛 최대 수 (${MAX_UNITS}마리)라 컬렉션 보상을 받지 못했습니다.`)
+      return
+    }
     const rewardText = []
-    if (def.rewardTier) {
-      const given = grantCollectionUnit(def.rewardTier, def.kind === 'shape' ? def.shape : null)
+    for (const reward of rewards) {
+      const given = grantCollectionUnit(reward.tier, reward.shape)
       if (!given) return
-      rewardText.push(`${SHAPE_LABEL[given]} ${TIERS[def.rewardTier].name}`)
+      rewardText.push(`${SHAPE_LABEL[given]} ${TIERS[reward.tier].name}`)
     }
     if (def.gold) {
       state.gold += def.gold

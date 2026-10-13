@@ -236,9 +236,21 @@ spirit.claimCollection('seongryeong')
 Math.random = savedRandom
 expect('성령 컬렉션 골드', spirit.state.gold, 500)
 expect('성령 컬렉션 태초', spirit.state.units.filter(unit => unit.tier === 'origin' && unit.shape === 'circle').length, 1)
-expect('성령과 종말은 남음', spirit.state.units.filter(unit => unit.tier === 'seongryeong' || unit.tier === 'apocalypse').length, 4)
+expect('성령 컬렉션 종말', spirit.state.units.filter(unit => unit.tier === 'apocalypse' && unit.shape === 'circle').length, 2)
+expect('성령은 남음', spirit.state.units.filter(unit => unit.tier === 'seongryeong').length, 3)
 spirit.claimCollection('seongryeong')
 expect('성령 컬렉션 한 번', spirit.state.units.filter(unit => unit.tier === 'origin').length, 1)
+expect('성령 컬렉션 종말 한 번', spirit.state.units.filter(unit => unit.tier === 'apocalypse').length, 2)
+
+const tightSpirit = createGame()
+tightSpirit.state.gold = 0
+for (const shape of SHAPES) putUnit(tightSpirit, shape, 'seongryeong', nextCollectionId++)
+putUnit(tightSpirit, 'circle', 'apocalypse', nextCollectionId++)
+while (tightSpirit.state.units.length < MAX_UNITS - 1) putUnit(tightSpirit, 'circle', 'normal', nextCollectionId++)
+tightSpirit.claimCollection('seongryeong')
+expect('자리 하나면 성령 컬렉션 유지', tightSpirit.state.claimedCollections.seongryeong, false)
+expect('자리 하나면 골드 없음', tightSpirit.state.gold, 0)
+expect('자리 하나면 태초 없음', tightSpirit.state.units.some(unit => unit.tier === 'origin'), false)
 
 const blocked = createGame()
 for (const tier of SHAPE_COLLECTION_TIERS) putUnit(blocked, 'square', tier, nextCollectionId++)
