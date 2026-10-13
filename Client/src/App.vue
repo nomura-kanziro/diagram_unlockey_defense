@@ -16,7 +16,7 @@ function onKey(event) {
 
 onMounted(() => {
   window.addEventListener('keydown', onKey)
-  console.log('%c[메이플 운빨 디펜스] 프로토타입 로드 완료. S키 = 소환, N키 = 다음 라운드', 'color:#0f0')
+  console.log('%c[도형 운빨 디펜스] 프로토타입 로드 완료. S키 = 소환, N키 = 다음 라운드', 'color:#0f0')
 })
 
 onUnmounted(() => {
