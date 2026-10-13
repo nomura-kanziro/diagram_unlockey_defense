@@ -2,10 +2,10 @@
   "name": "maple-unlucky-defense",
   "private": true,
   "scripts": {
-    "postinstall": "npm install --prefix Client",
+    "postinstall": "npm install --prefix Client && npm install --prefix Server",
     "dev": "npm run dev --prefix Client",
     "build": "npm run build --prefix Client",
     "preview": "npm run preview --prefix Client",
-    "check": "npm run check --prefix Client && node Server/check-accounts.mjs"
+    "check": "npm run check --prefix Client && npm run check --prefix Server"
   }
 }

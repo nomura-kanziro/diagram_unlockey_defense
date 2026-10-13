@@ -34,6 +34,10 @@ function levelColor(card) {
         <span>💰 골드:</span>
         <span id="gold-display" class="stat-value">{{ game.state.gold.toFixed(1) }}</span>
       </div>
+      <div class="stat">
+        <span>✦ 처치 포인트:</span>
+        <span id="mob-point-display" class="stat-value">{{ game.state.mobKillPoint }}</span>
+      </div>
       <div v-if="game.state.account" class="stat">
         <span id="account-display" class="stat-value">{{ game.state.account.displayName }}</span>
       </div>

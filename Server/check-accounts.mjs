@@ -1,38 +1,17 @@
-import { spawn } from 'node:child_process'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { createApp } from './src/app.js'
+import { openDatabase } from './src/db.js'
 
 const dir = mkdtempSync(join(tmpdir(), 'diagram-accounts-'))
-const dbPath = join(dir, 'accounts.sqlite')
-const serverPath = fileURLToPath(new URL('./index.js', import.meta.url))
-const child = spawn(process.execPath, [serverPath], {
-  env: { ...process.env, PORT: '0', DB_PATH: dbPath },
-  stdio: ['ignore', 'pipe', 'pipe']
+const app = createApp(openDatabase(join(dir, 'accounts.sqlite')))
+const server = await new Promise(resolve => {
+  const listening = app.listen(0, '127.0.0.1', () => resolve(listening))
 })
-
-let stderr = ''
-child.stderr.on('data', chunk => { stderr += chunk })
-
-const port = await new Promise((resolve, reject) => {
-  const timer = setTimeout(() => reject(new Error(`서버가 시작되지 않았습니다. ${stderr}`)), 8000)
-  let buffer = ''
-  child.stdout.on('data', chunk => {
-    buffer += chunk
-    const match = buffer.match(/ACCOUNT_SERVER (\d+)/)
-    if (match) {
-      clearTimeout(timer)
-      resolve(Number(match[1]))
-    }
-  })
-  child.on('exit', code => {
-    clearTimeout(timer)
-    reject(new Error(`서버 종료 ${code}. ${stderr}`))
-  })
-})
-
+const port = server.address().port
 const failures = []
+
 function expect(name, actual, expected) {
   if (actual !== expected) failures.push(`${name}: 기대 ${expected}, 실제 ${actual}`)
 }
@@ -84,8 +63,7 @@ try {
     console.log('계정 확인 통과')
   }
 } finally {
-  child.kill()
-  await new Promise(resolve => setTimeout(resolve, 200))
+  await new Promise(resolve => server.close(resolve))
   try {
     rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 })
   } catch {

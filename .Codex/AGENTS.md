@@ -45,7 +45,9 @@
 
 개발 중 병합 대상은 `Devolop`뿐이다. 철자는 `Devolop`이다. `develop`이나 `Develop`이라는 Git 브랜치를 만들지 않는다.
 
-기능 커밋은 담당 브랜치에 남기고 그 브랜치를 `Devolop`으로 병합한다. `Devolop`에 기능 커밋을 직접 쌓지 않는다. 문서만 바꾸는 커밋은 `docs`에 둔 뒤 `Devolop`으로 병합한다.
+기능 커밋은 담당 브랜치에 남긴다. `Devolop`에 기능 커밋을 직접 쌓지 않는다. 문서만 바꾸는 커밋은 `docs`에 둔다.
+
+한 차례의 작업에서는 관련된 브랜치마다 그 브랜치의 커밋을 모두 끝낸다. 그 다음에 끝난 브랜치들을 `Devolop`에 한 번에 병합한다. 브랜치 하나의 커밋이 끝났을 때 그 브랜치만 먼저 병합하지 않는다. 병합 뒤에 기록 커밋을 `Devolop`에 얹고 담당 브랜치를 그 커밋까지 당기지 않는다.
 
 2026-10-14에 `Client`를 `master`에 넣었던 병합은 취소했다. `master`는 병합 전 커밋 `adbef34f08df944c22dc789d609d16f93982534e`를 가리킨다.
 
@@ -54,6 +56,6 @@
 ## 저장소 현황
 
 - 플레이하는 클라이언트는 루트 `Client`의 Vue 앱이다. 원본 `maple_unlucky_defense (51).html`은 변경 지시가 없으면 수정하지 않는다.
-- 서버 프로세스와 데이터베이스는 아직 없다.
-- 지금은 개발 모드다. 병합은 `Devolop`에만 하고, `master`는 완성이 끝난 뒤에만 병합한다.
-- Git 브랜치는 `master`, `Devolop`, `Client`, `docs`, `backup-before-split`이 있다. `docs`와 `backup-before-split`의 커밋은 `Devolop`에 들어 있다.
+- 계정 서버는 루트 `Server`의 Express 앱이다. 전투는 클라이언트에 남는다. Git 브랜치 `Server`와 `database`는 없다.
+- 지금은 개발 모드다. 담당 브랜치의 커밋이 모두 끝난 뒤에 `Devolop`으로 한 번에 병합한다. `master`는 완성이 끝난 뒤에만 병합한다.
+- Git 브랜치는 `master`, `Devolop`, `Client`, `docs`, `backup-before-split`이 있다.
