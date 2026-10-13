@@ -24,12 +24,18 @@ maple_unlucky_defense/
 │       ├── styles/
 │       │   └── game.css
 │       ├── game/
+│       │   ├── account.js
 │       │   ├── constants.js
 │       │   └── engine.js
 │       └── components/
 │           ├── StartScreen.vue
 │           ├── GameScreen.vue
 │           └── ExplanationModal.vue
+├── Server/
+│   ├── index.js
+│   ├── check-accounts.mjs
+│   ├── package.json
+│   └── .gitignore
 ├── .agents/
 │   └── RULES.md
 ├── .Grok/
@@ -101,7 +107,8 @@ maple_unlucky_defense/
     │           ├── 0030.md
     │           ├── 0031.md
     │           ├── 0032.md
-    │           └── 0033.md
+    │           ├── 0033.md
+    │           └── 0034.md
     ├── Build-up/
     │   └── BUILD_UP.md
     ├── Changelog/
@@ -178,7 +185,7 @@ Vue 3와 Vite로 만든 클라이언트다. `node_modules`와 `dist`는 `.gitign
 | `Branchs/Server` | `README.md` | 서버 브랜치 설명 |
 | `Branchs/database` | `README.md` | 데이터베이스 브랜치 설명 |
 | `Branchs/docs` | `README.md` | 문서 브랜치 설명 |
-| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0033.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
+| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0034.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
 | `Build-up` | `BUILD_UP.md` | 확인된 준비 단계 |
 | `Changelog` | `CHANGELOG.md` | 시간순 변경 이력 |
 | `find_debug` | `README.md`, 화면·소환·합성 기록 | 디버그 기록 형식과 확인한 사건 |

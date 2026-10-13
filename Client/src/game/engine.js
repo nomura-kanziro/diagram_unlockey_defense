@@ -20,6 +20,7 @@ import {
   COLLECTION_DEFS,
   shapeForTier
 } from './constants.js'
+import { reportClear } from './account.js'
 
 export function createGame() {
   const state = reactive({
@@ -1198,6 +1199,14 @@ export function createGame() {
 
   function startGame(difficultyId = 'normal') {
     const diff = DIFFICULTIES[difficultyId] || DIFFICULTIES.normal
+    if (!state.account?.token) {
+      addLog('로그인 후 플레이할 수 있습니다.')
+      return
+    }
+    if (!state.account.unlocked?.[diff.id]) {
+      addLog(`${diff.name} 난이도는 아직 잠겨 있습니다.`)
+      return
+    }
     state.difficulty = diff.id
     state.gold = 30
     state.currentLevel = 1
@@ -1231,10 +1240,19 @@ export function createGame() {
     gameLoop()
   }
 
-  function endGame(isWin, reason = '') {
+  async function endGame(isWin, reason = '') {
     state.gameRunning = false
     spawning = false
     stopSpawnTimer()
+    if (isWin && state.account?.token) {
+      try {
+        const profile = await reportClear(state.account.token, state.difficulty)
+        state.account = { token: state.account.token, ...profile }
+        addLog(`기록 저장: ${profile.displayName}`)
+      } catch {
+        addLog('클리어 기록을 저장하지 못했습니다.')
+      }
+    }
     const msg = isWin
       ? `🎉 축하합니다! ${difficultyView().name} ${difficultyView().maxLevel}레벨 클리어! 게임 승리!`
       : `💀 게임 오버! ${reason || '적의 수가 너무 많습니다.'}`

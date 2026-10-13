@@ -34,6 +34,9 @@ function levelColor(card) {
         <span>💰 골드:</span>
         <span id="gold-display" class="stat-value">{{ game.state.gold.toFixed(1) }}</span>
       </div>
+      <div v-if="game.state.account" class="stat">
+        <span id="account-display" class="stat-value">{{ game.state.account.displayName }}</span>
+      </div>
       <div class="stat">
         <span>🎯 난이도:</span>
         <span id="difficulty-display" class="stat-value">{{ game.difficultyView().name }}</span>

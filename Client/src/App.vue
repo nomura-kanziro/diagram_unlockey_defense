@@ -29,8 +29,10 @@ onUnmounted(() => {
   <div class="container">
     <StartScreen
       v-show="!game.state.started"
+      :account="game.state.account"
       @start="game.startGame($event)"
       @explain="game.showExplanation()"
+      @account="game.state.account = $event"
     />
     <GameScreen :game="game" />
     <ExplanationModal v-if="game.state.explanationOpen" @close="game.closeExplanation()" />
