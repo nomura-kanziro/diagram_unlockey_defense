@@ -89,7 +89,8 @@ maple_unlucky_defense/
     │           ├── 0018.md
     │           ├── 0019.md
     │           ├── 0020.md
-    │           └── 0021.md
+    │           ├── 0021.md
+    │           └── 0022.md
     ├── Build-up/
     │   └── BUILD_UP.md
     ├── Changelog/
@@ -161,12 +162,12 @@ Vue 3와 Vite로 만든 클라이언트다. `node_modules`와 `dist`는 `.gitign
 | `Docs` | `README.md` | 문서 목록 |
 | `Architecture` | `ARCHITECTURE.md` | 현재 프로토타입의 구성과 관계 |
 | `Branchs/Master` | `README.md` | 메인 및 배포 브랜치 설명 |
-| `Branchs/Devolop` | `README.md` | 개발 총합, 병합, 테스트 브랜치 설명 |
+| `Branchs/Devolop` | `README.md` | 개발 모드의 병합 대상. 완성 전에는 `master`로 병합하지 않는다 |
 | `Branchs/Client` | `README.md` | 클라이언트 브랜치 설명 |
 | `Branchs/Server` | `README.md` | 서버 브랜치 설명 |
 | `Branchs/database` | `README.md` | 데이터베이스 브랜치 설명 |
 | `Branchs/docs` | `README.md` | 문서 브랜치 설명 |
-| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0021.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
+| `Branchs/commits` | `COMMIT_GUIDE.md`, `COMMIT_TEMPLATE.md`, `records/0001.md`부터 `records/0022.md` | 커밋 문장 규칙, 기록 템플릿, 커밋 기록 |
 | `Build-up` | `BUILD_UP.md` | 확인된 준비 단계 |
 | `Changelog` | `CHANGELOG.md` | 시간순 변경 이력 |
 | `find_debug` | `README.md`, 화면·소환·합성 기록 | 디버그 기록 형식과 확인한 사건 |

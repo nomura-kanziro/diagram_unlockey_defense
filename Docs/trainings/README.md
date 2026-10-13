@@ -2,6 +2,11 @@
 
 테스트한 사실만 적는다. 자동 테스트 스크립트는 아직 없다. 게임을 브라우저에서 다시 플레이하는 테스트는 이번 문서 작업의 범위가 아니다.
 
+## 2026-10-14 병합 취소
+
+- `git rev-parse`: `master`는 `adbef34f08df944c22dc789d609d16f93982534e`, `Client`는 `96bad8d40220b1f12795b2b4fdfd38bbfbc64351`이다. `origin/master`보다 `master`가 1커밋 앞에 있다.
+- `docs`의 `14f639a1c2d5fac58c51a6bdac9cc578305f834b`는 `Client`의 조상이다. `backup-before-split`은 조상이 아니다.
+
 ## 2026-10-04 문서 골격
 
 - 확인 내용: 에이전트 폴더와 `Docs` 폴더가 지정한 이름으로 만들어졌는지, 게임 HTML을 수정하지 않았는지.

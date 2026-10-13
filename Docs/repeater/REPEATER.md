@@ -12,6 +12,7 @@
 4. 확인하지 않은 서버, 클라이언트, 데이터베이스 사실을 추가하지 않는다.
 5. 작업 뒤에 바뀐 `Docs`를 갱신한다.
 6. 커밋하면 `Docs/Branchs/commits/records`에 기록을 남기고 `git log`와 대조한다.
+7. 개발 중 병합은 `Devolop`에만 한다. `master`는 완성이 끝난 뒤에만 병합한다. 철자는 `Devolop`이다.
 
 규칙 사본을 고칠 때도 반복된다. `.agents/RULES.md`의 조항을 바꾸면 `AGENTS.md`, `.Grok/rules/work-rules.md`, `.Claude/CLAUDE.md`, `.Codex/AGENTS.md`, `.Vscode/RULES.md`, `.Curser/RULES.md`의 같은 조항을 함께 바꾼다.
 
