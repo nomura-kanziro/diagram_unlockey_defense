@@ -674,7 +674,10 @@ export function createGame() {
 
   function collectionComplete(def) {
     if (def.kind === 'shape') return SHAPE_COLLECTION_TIERS.every(tier => ownsShapeTier(def.shape, tier))
-    return SHAPES.every(shape => ownsShapeTier(shape, def.tier))
+    const spread = SHAPES.every(shape => ownsShapeTier(shape, def.tier))
+    if (!spread) return false
+    if (def.extraTier) return state.units.some(unit => unit.tier === def.extraTier)
+    return true
   }
 
   function grantCollectionUnit(tier, shape) {

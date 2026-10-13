@@ -225,12 +225,18 @@ expect('고급 컬렉션 한 번', spread.state.gold, 150)
 const spirit = createGame()
 spirit.state.gold = 0
 for (const shape of SHAPES) putUnit(spirit, shape, 'seongryeong', nextCollectionId++)
+expect('성령만으로는 미달성', spirit.collectionView().find(item => item.id === 'seongryeong').ready, false)
+spirit.claimCollection('seongryeong')
+expect('종말 없이 골드', spirit.state.gold, 0)
+putUnit(spirit, 'circle', 'apocalypse', nextCollectionId++)
+expect('성령 컬렉션 준비', spirit.collectionView().find(item => item.id === 'seongryeong').ready, true)
 const savedRandom = Math.random
 Math.random = () => 0
 spirit.claimCollection('seongryeong')
 Math.random = savedRandom
 expect('성령 컬렉션 골드', spirit.state.gold, 500)
 expect('성령 컬렉션 태초', spirit.state.units.filter(unit => unit.tier === 'origin' && unit.shape === 'circle').length, 1)
+expect('성령과 종말은 남음', spirit.state.units.filter(unit => unit.tier === 'seongryeong' || unit.tier === 'apocalypse').length, 4)
 spirit.claimCollection('seongryeong')
 expect('성령 컬렉션 한 번', spirit.state.units.filter(unit => unit.tier === 'origin').length, 1)
 
