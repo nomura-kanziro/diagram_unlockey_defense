@@ -262,6 +262,22 @@ body {
     cursor: default;
 }
 
+.skill-btn {
+    background: #ffe14a;
+    color: #111;
+}
+
+.ruin-btn {
+    background: #7a1020;
+    color: white;
+}
+
+.skill-btn:disabled {
+    background: #333;
+    color: #777;
+    cursor: default;
+}
+
 .action-panel {
     background: #1a1a2e;
     padding: 15px;

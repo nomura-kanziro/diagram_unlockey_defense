@@ -573,6 +573,27 @@ export function createGame() {
     addLog(`🔄 ${SHAPE_LABEL[shape]} ${tier.name} ${sets * 3}개 → ${SHAPE_LABEL[resultShape]} ${TIERS[nextTier].name} ${sets}개 합성`)
   }
 
+  function useLightning(unitOrId) {
+    const unit = resolveUnit(unitOrId)
+    if (!unit || unit.tier !== 'apocalypse') return
+    state.enemyDefense = 0
+    addLog('뇌전! 적 방어력이 제거되었습니다.')
+  }
+
+  function useRuinStrike(unitOrId) {
+    const unit = resolveUnit(unitOrId)
+    if (!unit || unit.tier !== 'mobius') return
+    if (unit.ruinUsed) {
+      addLog('파멸의 일격은 한 번만 사용할 수 있습니다.')
+      return
+    }
+    unit.ruinUsed = true
+    state.enemies.forEach(enemy => {
+      enemy.health -= Math.floor(enemy.maxHealth * 0.07)
+    })
+    addLog('파멸의 일격! 모든 적의 최대 체력 7%를 깎았습니다.')
+  }
+
   function exchangeUnit(targetTier) {
     let cost
     let successRate
@@ -633,7 +654,9 @@ export function createGame() {
       interval: getAttackInterval(unit),
       canDoApocalypse,
       canDoMobius,
-      action
+      action,
+      skill: unit.tier === 'apocalypse' ? 'lightning' : (unit.tier === 'mobius' ? 'ruin' : ''),
+      skillUsed: !!unit.ruinUsed
     }
   }
 
@@ -1180,6 +1203,8 @@ export function createGame() {
     else if (action === 'synthesize') synthesizeUnit(unit)
     else if (action === 'sell') sellUnit(unit)
     else if (action === 'ascend') ascendUnit(unit)
+    else if (action === 'lightning') useLightning(unit)
+    else if (action === 'ruin') useRuinStrike(unit)
   }
 
   function dispose() {

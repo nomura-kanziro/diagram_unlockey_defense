@@ -206,6 +206,19 @@ function levelColor(card) {
                 >판매</button>
                 <div v-else class="top-grade">최고 등급</div>
               </div>
+              <div v-if="game.unitCard(unit).skill" class="unit-actions">
+                <button
+                  v-if="game.unitCard(unit).skill === 'lightning'"
+                  class="action-btn skill-btn"
+                  @click="game.onUnitAction(unit, 'lightning')"
+                >뇌전</button>
+                <button
+                  v-else
+                  class="action-btn skill-btn ruin-btn"
+                  :disabled="game.unitCard(unit).skillUsed"
+                  @click="game.onUnitAction(unit, 'ruin')"
+                >파멸의 일격</button>
+              </div>
             </div>
           </div>
         </div>

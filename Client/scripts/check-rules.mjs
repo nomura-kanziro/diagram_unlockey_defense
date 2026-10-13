@@ -265,6 +265,25 @@ expect('뫼비우스 범위 밖', splash.state.enemies[2].health, 10000)
 const apocalypse = { tier: 'apocalypse', level: 9 }
 expect('종말 고정 피해', createGame().calculateDamage(apocalypse), 15000)
 
+const skills = createGame()
+skills.state.enemyDefense = 12
+const apocalypseUnit = { id: 1, tier: 'apocalypse', shape: 'circle', level: 1, x: 0, y: 0, lastAttack: 0, color: '#666' }
+const mobiusUnit = { id: 2, tier: 'mobius', shape: 'circle', level: 1, x: 0, y: 0, lastAttack: 0, color: '#88ddff' }
+skills.state.units.push(apocalypseUnit, mobiusUnit)
+skills.state.enemies.push(
+  { id: 1, x: 0, y: 0, health: 1000, maxHealth: 1000, isBoss: false, isDeathmatch: false },
+  { id: 2, x: 400, y: 0, health: 100, maxHealth: 100, isBoss: false, isDeathmatch: false }
+)
+skills.onUnitAction(apocalypseUnit, 'lightning')
+expect('뇌전 방어 제거', skills.state.enemyDefense, 0)
+skills.onUnitAction(mobiusUnit, 'ruin')
+expect('파멸 가까운 적', skills.state.enemies[0].health, 930)
+expect('파멸 먼 적', skills.state.enemies[1].health, 93)
+skills.onUnitAction(mobiusUnit, 'ruin')
+expect('파멸 한 번', skills.state.enemies[0].health, 930)
+expect('종말 스킬', skills.unitCard(apocalypseUnit).skill, 'lightning')
+expect('뫼비우스 스킬 사용', skills.unitCard(mobiusUnit).skillUsed, true)
+
 const seller = createGame()
 seller.state.gold = 30
 seller.state.units.push(
