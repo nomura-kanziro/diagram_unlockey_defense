@@ -4,7 +4,7 @@
 
 ## 실행
 
-저장소 루트에서 `npm install`과 `npm run dev`를 실행해도 이 폴더의 설치와 개발 서버로 이어진다. `Client` 안에서 직접 실행해도 같다. 개발 서버는 계정 API `Server/index.js`를 `127.0.0.1:8787`에 같이 띄우고 `/api`로 프록시한다.
+저장소 루트에서 `npm install`과 `npm run dev`를 실행해도 이 폴더의 설치와 개발 서버로 이어진다. `Client` 안에서 직접 실행해도 같다. 개발 서버는 Express 계정 API `Server/index.js`를 `127.0.0.1:8787`에 같이 띄우고 `/api`로 프록시한다.
 
 ```
 npm install
