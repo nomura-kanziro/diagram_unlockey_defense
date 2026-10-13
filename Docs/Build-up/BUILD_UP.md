@@ -18,3 +18,14 @@
 - `Docs`의 Architecture, Branchs, Build-up, Changelog, find_debug, guidance, plan, repeater, structure, trainings, vaildates, web_management
 
 이 단계는 문서를 쌓는 단계다. 게임 동작을 바꾸지 않는다.
+
+## 2. Vue 클라이언트
+
+2026-10-04에 Git 브랜치 `Client`의 루트 `Client`를 추가했다.
+
+- Vue 3와 Vite
+- 원본 HTML의 화면과 전투 규칙을 `src/game/engine.js`로 옮김
+- 원본 HTML 파일은 유지
+- 화면은 브라우저 가로 전체를 쓰고, 전장은 남은 칸에 맞춘 정사각형이다
+
+서버와 데이터베이스는 이 단계에 없다.

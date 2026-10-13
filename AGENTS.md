@@ -39,8 +39,21 @@
 
 작업 전에 `Docs`의 관련 문서를 읽는다. 작업 뒤에 구성, 동작, 구조, 검증, 테스트, 변경 이력, 커밋 기록 중 바뀐 항목을 해당 문서에 갱신한다.
 
+## 7. 개발 중에는 Devolop에만 병합한다
+
+지금은 개발 모드다. 게임이 완성되기 전에는 `master`에 병합하지 않는다. `master`는 완성 뒤의 메인과 배포 브랜치다.
+
+개발 중 병합 대상은 `Devolop`뿐이다. 철자는 `Devolop`이다. `develop`이나 `Develop`이라는 Git 브랜치를 만들지 않는다.
+
+기능 커밋은 담당 브랜치에 남기고 그 브랜치를 `Devolop`으로 병합한다. `Devolop`에 기능 커밋을 직접 쌓지 않는다. 문서만 바꾸는 커밋은 `docs`에 둔 뒤 `Devolop`으로 병합한다.
+
+2026-10-14에 `Client`를 `master`에 넣었던 병합은 취소했다. `master`는 병합 전 커밋 `adbef34f08df944c22dc789d609d16f93982534e`를 가리킨다.
+
+`docs`의 `14f639a1c2d5fac58c51a6bdac9cc578305f834b`까지는 `Client` 역사에 이미 들어 있다. `backup-before-split`은 커밋을 나누기 전 백업이라 다시 병합하지 않는다. `Server`와 `database` 브랜치는 사용자 지시 없이 만들지 않는다.
+
 ## 저장소 현황
 
-- 실행 파일은 브라우저에서 여는 단일 HTML이다. 서버 프로세스와 데이터베이스는 아직 없다.
-- 문서상 브랜치 역할은 Master(메인 및 배포), Devolop(개발 총합, 병합 전용, 테스트), Client, Server, database이다.
-- Git에 브랜치를 더 만드는 일은 사용자 지시가 있을 때 한다. 이 규칙을 작성한 시점의 Git 브랜치는 `master`뿐이다.
+- 플레이하는 클라이언트는 루트 `Client`의 Vue 앱이다. 원본 `maple_unlucky_defense (51).html`은 변경 지시가 없으면 수정하지 않는다.
+- 서버 프로세스와 데이터베이스는 아직 없다.
+- 지금은 개발 모드다. 병합은 `Devolop`에만 하고, `master`는 완성이 끝난 뒤에만 병합한다.
+- Git 브랜치는 `master`, `Devolop`, `Client`, `docs`, `backup-before-split`이 있다. `backup-before-split`은 백업이라 병합하지 않는다.

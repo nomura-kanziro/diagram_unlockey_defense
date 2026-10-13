@@ -34,19 +34,20 @@ Windows 파일 시스템은 대소문자를 구분하지 않는다. `.Grok`은 `
 
 문서 안의 역할 이름과 Git 브랜치를 구분한다.
 
-| 문서 폴더 | 역할 | Git 브랜치 (2026-10-04) |
+| 문서 폴더 | 역할 | Git 브랜치 (2026-10-14) |
 |---|---|---|
-| `Docs/Branchs/Master` | 메인 및 배포 | `master`만 있음 |
-| `Docs/Branchs/Devolop` | 개발 총합, 병합 전용, 테스트 | 없음 |
-| `Docs/Branchs/Client` | 클라이언트 | 없음 |
+| `Docs/Branchs/Master` | 완성 뒤의 메인 및 배포 | `master` |
+| `Docs/Branchs/Devolop` | 개발 모드의 병합 전용과 테스트 | `Devolop` |
+| `Docs/Branchs/Client` | 클라이언트 | `Client` |
 | `Docs/Branchs/Server` | 서버 | 없음 |
 | `Docs/Branchs/database` | 데이터베이스 | 없음 |
+| `Docs/Branchs/docs` | 문서 | `docs` |
 
-없는 브랜치는 사용자 지시 없이 만들지 않는다. 철자 `Devolop`, `vaildates`, `.Curser`는 사용자가 지정한 이름이라 그대로 둔다.
+지금은 개발 모드다. 작업 병합은 `Devolop`에만 한다. `master`는 게임이 완성된 뒤에만 병합한다. 2026-10-14에 `master`로 넣었던 병합은 취소했다. 철자 `Devolop`, `vaildates`, `.Curser`는 사용자가 지정한 이름이라 그대로 둔다. `develop`이라는 브랜치는 만들지 않는다. 없는 브랜치는 사용자 지시 없이 만들지 않는다.
 
 ## 도메인 경계
 
-이 프로토타입의 클라이언트는 HTML 파일 하나다. 서버와 데이터베이스 코드는 없다. 세 영역을 문서로 나누어 두었더라도, 없는 구현을 있는 것처럼 설계도에 추가하지 않는다. 구현 명령이 확정되면 `Docs/plan`에 적은 뒤 해당 `Branchs` 문서를 갱신한다.
+플레이용 클라이언트는 Git 브랜치 `Client`의 루트 `Client`다. 원본은 `maple_unlucky_defense (51).html`이며, 변경 지시가 없으면 그 파일을 수정하지 않는다. 서버와 데이터베이스 코드는 없다. 세 영역을 문서로 나누어 두었더라도, 없는 구현을 있는 것처럼 설계도에 추가하지 않는다. 구현 명령이 확정되면 `Docs/plan`에 적은 뒤 해당 `Branchs` 문서를 갱신한다.
 
 ## 커밋 문장
 
