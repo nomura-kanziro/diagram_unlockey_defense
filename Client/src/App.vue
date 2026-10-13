@@ -29,7 +29,7 @@ onUnmounted(() => {
   <div class="container">
     <StartScreen
       v-show="!game.state.started"
-      @start="game.startGame()"
+      @start="game.startGame($event)"
       @explain="game.showExplanation()"
     />
     <GameScreen :game="game" />

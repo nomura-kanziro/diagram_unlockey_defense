@@ -33,10 +33,55 @@ export const SYNTHESIS_MAP = {
   heaven: 'origin'
 }
 
-export const BOSS_LEVELS = [30, 65, 87, 104, 122, 145, 174, 180, 190, 195, 199, 200]
+export const BASE_BOSS_LEVELS = [30, 65, 87, 104, 122, 145, 174, 180, 190, 195, 199, 200]
+export const EXTRA_BOSS_LEVELS = [210, 220, 230, 240, 249, 250, 260, 270, 280, 290, 295, 299, 300]
+export const BOSS_LEVELS = BASE_BOSS_LEVELS
 
-export function isBossLevel(level) {
-  return BOSS_LEVELS.includes(level)
+export const DIFFICULTIES = {
+  easy: { id: 'easy', name: '쉬움', maxLevel: 150, scaleNum: 2, scaleDen: 3, shieldFromBoss: 0, shieldRegen: false, detail: '150레벨 · 보통보다 1.5배 쉽게' },
+  normal: { id: 'normal', name: '보통', maxLevel: 200, scaleNum: 1, scaleDen: 1, shieldFromBoss: 0, shieldRegen: false, detail: '200레벨 · 기본 게임' },
+  hard: { id: 'hard', name: '어려움', maxLevel: 250, scaleNum: 3, scaleDen: 2, shieldFromBoss: 6, shieldRegen: false, detail: '250레벨 · 보통보다 1.5배 어렵게' },
+  impossible: { id: 'impossible', name: '불가능', maxLevel: 300, scaleNum: 2, scaleDen: 1, shieldFromBoss: 4, shieldRegen: true, detail: '300레벨 · 보통보다 2배 어렵게' }
+}
+
+export const DIFFICULTY_ORDER = ['easy', 'normal', 'hard', 'impossible']
+
+export function bossLevelsFor(difficultyId = 'normal') {
+  const diff = DIFFICULTIES[difficultyId] || DIFFICULTIES.normal
+  return [...BASE_BOSS_LEVELS, ...EXTRA_BOSS_LEVELS].filter(level => level <= diff.maxLevel)
+}
+
+export function isBossLevel(level, difficultyId = 'normal') {
+  return bossLevelsFor(difficultyId).includes(level)
+}
+
+export function bossOrdinal(level, difficultyId = 'normal') {
+  const index = bossLevelsFor(difficultyId).indexOf(level)
+  return index === -1 ? 0 : index + 1
+}
+
+export function isDeathmatchLevel(level, difficultyId = 'normal') {
+  return level >= 175 && level <= 198 && !isBossLevel(level, difficultyId)
+}
+
+export function combatHealth(level, kind, difficultyId = 'normal') {
+  const diff = DIFFICULTIES[difficultyId] || DIFFICULTIES.normal
+  let health = 10 * Math.pow(1.1, level - 1)
+  if (kind === 'boss') {
+    if (level === 200 || level === 250 || level === 300) health *= 14
+    else if (level === 199 || level === 249 || level === 299) health *= 12
+    else health *= 10
+  } else if (kind === 'deathmatch') {
+    health *= 5
+  }
+  return Math.floor(health * diff.scaleNum / diff.scaleDen)
+}
+
+export function bossShield(level, difficultyId = 'normal') {
+  const diff = DIFFICULTIES[difficultyId] || DIFFICULTIES.normal
+  const ordinal = bossOrdinal(level, difficultyId)
+  if (!diff.shieldFromBoss || ordinal < diff.shieldFromBoss) return 0
+  return Math.floor(combatHealth(level, 'boss', difficultyId) / 8)
 }
 
 export const SHAPES = ['circle', 'triangle', 'square']

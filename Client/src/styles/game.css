@@ -173,6 +173,56 @@ body {
     flex: 1 1 180px;
 }
 
+.difficulty-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.diff-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-height: 74px;
+    padding: 10px 12px;
+    text-align: left;
+    color: #e8edf8;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.diff-card.selected {
+    border-color: #00ffff;
+    box-shadow: inset 0 0 0 1px #00ffff;
+    background: rgba(0, 255, 255, 0.08);
+}
+
+.diff-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.diff-meta {
+    color: #aeb6c9;
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+.diff-easy .diff-name { color: #8dffb0; }
+.diff-normal .diff-name { color: #7ef6ff; }
+.diff-hard .diff-name { color: #ffb020; }
+.diff-impossible .diff-name { color: #ff6d8a; }
+
+@media (max-width: 520px) {
+    .difficulty-list {
+        grid-template-columns: 1fr;
+    }
+}
+
 .btn {
     padding: 15px 50px;
     font-size: 1.4rem;
