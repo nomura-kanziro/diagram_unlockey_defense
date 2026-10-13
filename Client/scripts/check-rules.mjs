@@ -374,6 +374,19 @@ hardNoRegen.state.enemies.push({ shield: 0, maxShield: 80, health: 10, shieldDow
 for (let second = 0; second < 5; second++) hardNoRegen.advanceOneGameSecond()
 expect('어려움 쉴드는 회복 없음', hardNoRegen.state.enemies[0].shield, 0)
 
+const points = createGame()
+points.state.gold = 0
+points.grantKillReward({ isBoss: false, isDeathmatch: false, x: 0, y: 0 })
+expect('첫 일반 처치 포인트', points.state.gold, 2)
+expect('처치 포인트 시작', points.state.mobKillPoint, 2)
+points.grantKillReward({ isBoss: true, isDeathmatch: false, x: 0, y: 0 })
+expect('보스 골드는 150', points.state.gold, 152)
+expect('보스 후 처치 포인트', points.state.mobKillPoint, 3)
+points.grantKillReward({ isBoss: false, isDeathmatch: false, x: 0, y: 0 })
+expect('오른 일반 처치 포인트', points.state.gold, 155)
+points.grantKillReward({ isBoss: false, isDeathmatch: true, x: 0, y: 0 })
+expect('데스매치 골드는 그대로', points.state.gold, 200)
+
 if (failures.length) {
   console.error(failures.join('\n'))
   process.exit(1)

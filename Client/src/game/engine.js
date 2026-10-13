@@ -55,7 +55,8 @@ export function createGame() {
     explanationOpen: false,
     buffCooldownText: '',
     difficulty: 'normal',
-    account: null
+    account: null,
+    mobKillPoint: 2
   })
 
   let canvas = null
@@ -838,6 +839,16 @@ export function createGame() {
     }, 50)
   }
 
+  function grantKillReward(enemy) {
+    const goldGain = enemy.isBoss ? 150 : (enemy.isDeathmatch ? 45 : state.mobKillPoint)
+    state.gold += goldGain
+    createFloatingGold(enemy.x, enemy.y, goldGain)
+    if (enemy.isBoss) {
+      state.mobKillPoint += 1
+      addLog(`적 처치 포인트 +1 (현재 ${state.mobKillPoint})`)
+    }
+  }
+
   function updateEnemies() {
     for (let i = state.enemies.length - 1; i >= 0; i--) {
       const enemy = state.enemies[i]
@@ -845,9 +856,7 @@ export function createGame() {
       enemy.x = CENTER_X + Math.cos(enemy.angle) * OUTER_RADIUS
       enemy.y = CENTER_Y + Math.sin(enemy.angle) * OUTER_RADIUS
       if (enemy.health <= 0) {
-        const goldGain = enemy.isBoss ? 150 : (enemy.isDeathmatch ? 45 : 2)
-        state.gold += goldGain
-        createFloatingGold(enemy.x, enemy.y, goldGain)
+        grantKillReward(enemy)
         if (enemy.isBoss) {
           if (state.currentLevel === 30) {
             state.enemyDefense += 1
@@ -1208,6 +1217,7 @@ export function createGame() {
       return
     }
     state.difficulty = diff.id
+    state.mobKillPoint = 2
     state.gold = 30
     state.currentLevel = 1
     state.timeLeft = 90
@@ -1319,6 +1329,7 @@ export function createGame() {
     enemyHealthView,
     advanceOneGameSecond,
     damageEnemy,
+    grantKillReward,
     collectionView,
     claimCollection,
     performAttacks,
