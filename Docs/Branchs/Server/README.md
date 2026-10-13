@@ -4,7 +4,7 @@
 
 Git 브랜치 `Server`는 아직 없다. 사용자 지시 없이 만들지 않는다. 계정 서버 파일은 저장소 루트 `Server`에 있고, 커밋은 `Client`에 둔다. `Devolop` 병합은 그 차례의 담당 브랜치 커밋이 모두 끝난 뒤에 한 번에 한다.
 
-계정 서버는 Node.js와 Express다. 진입은 `Server/index.js`이고, 앱 조립은 `Server/src/app.js`, 계정 라우터는 `Server/src/accounts.js`, SQLite 접근은 `Server/src/db.js`다. 개발 중에는 Vite가 `127.0.0.1:8787`로 띄우고, 클라이언트는 `/api`로 호출한다.
+계정 서버는 Node.js와 Express다. 진입은 `Server/index.js`이고, 앱 조립은 `Server/src/app.js`, 계정 라우터는 `Server/src/accounts.js`, SQLite 접근은 `Server/src/db.js`다. 개발 중에는 Vite가 `127.0.0.1:8787`로 띄운다. 그 포트가 이미 열려 있으면 새로 띄우지 않는다. 클라이언트는 `/api`로 호출한다.
 
 - `GET /api/health` 서버가 떠 있는지 확인한다.
 - `POST /api/register` 아이디와 비밀번호로 가입하고 로그인 토큰을 준다.
