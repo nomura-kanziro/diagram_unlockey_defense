@@ -262,6 +262,8 @@ splash.performAttacks()
 expect('뫼비우스 주 피해', splash.state.enemies[0].health, 9850)
 expect('뫼비우스 무한 스플래시', splash.state.enemies[1].health, 9880)
 expect('뫼비우스 범위 밖', splash.state.enemies[2].health, 10000)
+const apocalypse = { tier: 'apocalypse', level: 9 }
+expect('종말 고정 피해', createGame().calculateDamage(apocalypse), 15000)
 
 const seller = createGame()
 seller.state.gold = 30
