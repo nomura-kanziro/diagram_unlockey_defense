@@ -525,6 +525,54 @@ export function createGame() {
     addLog(`${SHAPE_LABEL[shape]} ${tier.name} ${targets.length}개 판매 (+${total}원)`)
   }
 
+  function synthBundleView(shape, tierKey) {
+    const nextTier = SYNTHESIS_MAP[tierKey]
+    const count = matchingSellUnits(shape, tierKey).length
+    const sets = nextTier ? Math.floor(count / 3) : 0
+    return {
+      count,
+      sets,
+      nextName: nextTier ? TIERS[nextTier].name : '',
+      ready: sets > 0
+    }
+  }
+
+  function synthesizeMatchingUnits(shape, tierKey) {
+    const tier = TIERS[tierKey]
+    const nextTier = SYNTHESIS_MAP[tierKey]
+    if (!tier || !SHAPE_LABEL[shape]) return
+    if (!nextTier) {
+      addLog('이 등급은 합성할 수 없습니다.')
+      return
+    }
+    const targets = matchingSellUnits(shape, tierKey)
+    const sets = Math.floor(targets.length / 3)
+    if (sets < 1) {
+      addLog(`합성하려면 같은 모양의 ${tier.name}이 3개 이상 필요합니다. (현재 ${targets.length}개)`)
+      return
+    }
+    const consumed = targets.slice(0, sets * 3)
+    for (const unit of consumed) {
+      const index = state.units.indexOf(unit)
+      if (index !== -1) state.units.splice(index, 1)
+    }
+    const resultShape = shapeForTier(nextTier, shape)
+    for (let i = 0; i < sets; i++) {
+      const pos = placeInInnerCircle()
+      state.units.push({
+        id: nextId(),
+        tier: nextTier,
+        shape: resultShape,
+        level: 1 + state.globalLevelBonus,
+        x: pos.x,
+        y: pos.y,
+        lastAttack: Date.now(),
+        color: TIERS[nextTier].color
+      })
+    }
+    addLog(`🔄 ${SHAPE_LABEL[shape]} ${tier.name} ${sets * 3}개 → ${SHAPE_LABEL[resultShape]} ${TIERS[nextTier].name} ${sets}개 합성`)
+  }
+
   function exchangeUnit(targetTier) {
     let cost
     let successRate
@@ -1160,6 +1208,8 @@ export function createGame() {
     sellUnit,
     sellBundleView,
     sellMatchingUnits,
+    synthBundleView,
+    synthesizeMatchingUnits,
     ascendUnit,
     exchangeUnit,
     performApocalypseCombo,

@@ -245,8 +245,21 @@ body {
     color: #ccc;
 }
 
-.sell-all-btn {
+.sell-all-btn,
+.synth-all-btn {
     width: 100%;
+}
+
+.synth-all-btn {
+    margin-top: 6px;
+    background: #00aaff;
+    color: white;
+}
+
+.synth-all-btn:disabled {
+    background: #333;
+    color: #777;
+    cursor: default;
 }
 
 .action-panel {

@@ -283,6 +283,20 @@ expect('묶음 판매 골드', seller.state.gold, 42)
 seller.sellMatchingUnits('square', 'legendary')
 expect('전설은 묶음 판매 불가', seller.state.units.filter(unit => unit.tier === 'legendary').length, 1)
 expect('거절 후 골드', seller.state.gold, 42)
+seller.state.units.push(
+  { id: 6, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 7, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 8, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 9, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 10, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 11, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 12, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' }
+)
+expect('합성 묶음 횟수', seller.synthBundleView('square', 'normal').sets, 2)
+seller.synthesizeMatchingUnits('square', 'normal')
+expect('사각형 일반 나머지', seller.state.units.filter(unit => unit.tier === 'normal' && unit.shape === 'square').length, 1)
+expect('사각형 레어 합성', seller.state.units.filter(unit => unit.tier === 'rare' && unit.shape === 'square').length, 3)
+expect('삼각형은 합성되지 않음', seller.state.units.filter(unit => unit.shape === 'triangle' && unit.tier === 'normal').length, 1)
 
 if (failures.length) {
   console.error(failures.join('\n'))
