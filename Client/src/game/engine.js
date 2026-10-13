@@ -9,6 +9,10 @@ import {
   TIER_ORDER,
   SYNTHESIS_MAP,
   isBossLevel,
+  isDeathmatchLevel,
+  DIFFICULTIES,
+  combatHealth,
+  bossShield,
   MAX_UNITS,
   SHAPE_LABEL,
   SHAPES,
@@ -16,6 +20,7 @@ import {
   COLLECTION_DEFS,
   shapeForTier
 } from './constants.js'
+import { reportClear } from './account.js'
 
 export function createGame() {
   const state = reactive({
@@ -48,7 +53,9 @@ export function createGame() {
       seongryeong: false
     },
     explanationOpen: false,
-    buffCooldownText: ''
+    buffCooldownText: '',
+    difficulty: 'normal',
+    account: null
   })
 
   let canvas = null
@@ -589,7 +596,7 @@ export function createGame() {
     }
     unit.ruinUsed = true
     state.enemies.forEach(enemy => {
-      enemy.health -= Math.floor(enemy.maxHealth * 0.07)
+      damageEnemy(enemy, Math.floor(enemy.maxHealth * 0.07))
     })
     addLog('파멸의 일격! 모든 적의 최대 체력 7%를 깎았습니다.')
   }
@@ -727,20 +734,24 @@ export function createGame() {
     }))
   }
 
+  function difficultyView() {
+    const diff = DIFFICULTIES[state.difficulty] || DIFFICULTIES.normal
+    return { id: diff.id, name: diff.name, maxLevel: diff.maxLevel }
+  }
+
   function enemyHealthView() {
-    const baseHealth = 10 * Math.pow(1.1, state.currentLevel - 1)
     const bossOnField = state.enemies.find(e => e.isBoss || e.isDeathmatch)
-    const bossLevel = isBossLevel(state.currentLevel)
-    const deathmatch = state.currentLevel >= 175 && state.currentLevel <= 198
-    let bossMult = 10
-    if (state.currentLevel === 200) bossMult = 14
-    else if (state.currentLevel === 199) bossMult = 12
-    else if (state.currentLevel >= 175) bossMult = 10
+    const bossLevel = isBossLevel(state.currentLevel, state.difficulty)
+    const deathmatch = isDeathmatchLevel(state.currentLevel, state.difficulty)
+    const expectedKind = bossLevel ? 'boss' : 'deathmatch'
+    const normal = combatHealth(state.currentLevel, 'normal', state.difficulty)
+    const expected = combatHealth(state.currentLevel, expectedKind, state.difficulty)
+    const bossMult = normal > 0 ? Math.round((expected / normal) * 10) / 10 : 1
     return {
-      normal: Math.floor(baseHealth),
+      normal,
       bossOnField,
       showExpected: !bossOnField && (bossLevel || deathmatch),
-      expected: Math.floor(baseHealth * bossMult),
+      expected,
       bossMult,
       defense: state.enemyDefense
     }
@@ -750,25 +761,51 @@ export function createGame() {
     let angle
     if (isBoss || isDeathmatch) angle = Math.random() * Math.PI * 2
     else angle = SPAWN_PORTAL_ANGLE + (Math.random() - 0.5) * 0.6
-    let health = 10 * Math.pow(1.1, state.currentLevel - 1)
-    if (isBoss) {
-      if (state.currentLevel === 200) health *= 14
-      else if (state.currentLevel === 199) health *= 12
-      else health *= 10
-    } else if (isDeathmatch) {
-      health *= 5
-    }
+    const kind = isBoss ? 'boss' : (isDeathmatch ? 'deathmatch' : 'normal')
+    const health = combatHealth(state.currentLevel, kind, state.difficulty)
+    const shield = isBoss ? bossShield(state.currentLevel, state.difficulty) : 0
     const baseSpeed = isBoss || isDeathmatch ? 0.008 : 0.012
     state.enemies.push({
       id: Date.now() + Math.random(),
       angle,
-      health: Math.floor(health),
-      maxHealth: Math.floor(health),
+      health,
+      maxHealth: health,
+      shield,
+      maxShield: shield,
+      shieldDownFor: 0,
       isBoss,
       isDeathmatch,
       speed: baseSpeed * state.gameSpeed,
       x: CENTER_X + Math.cos(angle) * OUTER_RADIUS,
       y: CENTER_Y + Math.sin(angle) * OUTER_RADIUS
+    })
+  }
+
+  function damageEnemy(enemy, amount) {
+    let remaining = Math.max(0, Math.floor(amount))
+    if (!enemy || remaining <= 0) return
+    if (enemy.shield > 0) {
+      const absorbed = Math.min(enemy.shield, remaining)
+      enemy.shield -= absorbed
+      remaining -= absorbed
+      if (enemy.shield <= 0) {
+        enemy.shield = 0
+        enemy.shieldDownFor = 0
+      }
+    }
+    if (remaining > 0 && !(enemy.shield > 0)) enemy.health -= remaining
+  }
+
+  function advanceOneGameSecond() {
+    const diff = DIFFICULTIES[state.difficulty] || DIFFICULTIES.normal
+    if (!diff.shieldRegen) return
+    state.enemies.forEach(enemy => {
+      if (!enemy.maxShield || enemy.shield > 0 || enemy.health <= 0) return
+      enemy.shieldDownFor += 1
+      if (enemy.shieldDownFor >= 5) {
+        enemy.shield = enemy.maxShield
+        enemy.shieldDownFor = 0
+      }
     })
   }
 
@@ -877,7 +914,7 @@ export function createGame() {
             const reduction = 1 - (state.enemyDefense * 0.005)
             dmg = Math.floor(dmg * reduction)
           }
-          target.health -= dmg
+          damageEnemy(target, dmg)
           if (tier.aoe) {
             const aoeRadius = tier.infinite ? 120 : (tier.wide ? 90 : 70)
             state.enemies.forEach(other => {
@@ -889,7 +926,7 @@ export function createGame() {
                     const reduction = 1 - (state.enemyDefense * 0.005)
                     splashDmg = Math.floor(splashDmg * reduction)
                   }
-                  other.health -= splashDmg
+                  damageEnemy(other, splashDmg)
                 }
               }
             })
@@ -1005,15 +1042,24 @@ export function createGame() {
       ctx.arc(enemy.x, enemy.y, size, 0, Math.PI * 2)
       ctx.fill()
       const barWidth = size * 1.8
-      const healthPercent = enemy.health / enemy.maxHealth
+      const healthPercent = enemy.maxHealth > 0 ? enemy.health / enemy.maxHealth : 0
+      let barY = enemy.y - size - 8
+      if (enemy.maxShield > 0) {
+        const shieldPercent = enemy.shield / enemy.maxShield
+        ctx.fillStyle = '#222'
+        ctx.fillRect(enemy.x - barWidth / 2, enemy.y - size - 14, barWidth, 4)
+        ctx.fillStyle = '#7ecbff'
+        ctx.fillRect(enemy.x - barWidth / 2, enemy.y - size - 14, barWidth * shieldPercent, 4)
+        barY = enemy.y - size - 8
+      }
       ctx.fillStyle = '#222'
-      ctx.fillRect(enemy.x - barWidth / 2, enemy.y - size - 8, barWidth, 5)
+      ctx.fillRect(enemy.x - barWidth / 2, barY, barWidth, 5)
       ctx.fillStyle = healthPercent > 0.5 ? '#0f0' : (healthPercent > 0.2 ? '#ff0' : '#f00')
-      ctx.fillRect(enemy.x - barWidth / 2, enemy.y - size - 8, barWidth * healthPercent, 5)
+      ctx.fillRect(enemy.x - barWidth / 2, barY, barWidth * healthPercent, 5)
       if (enemy.isBoss) {
         ctx.fillStyle = '#fff'
         ctx.font = 'bold 10px sans-serif'
-        ctx.fillText('BOSS', enemy.x - 15, enemy.y - size - 14)
+        ctx.fillText('BOSS', enemy.x - 15, enemy.y - size - (enemy.maxShield > 0 ? 20 : 14))
       }
     })
   }
@@ -1055,8 +1101,8 @@ export function createGame() {
   function handleRoundEnd() {
     spawning = false
     stopSpawnTimer()
-    const isHighLevelBoss = state.currentLevel >= 175 || isBossLevel(state.currentLevel)
-    if (isHighLevelBoss && state.enemies.length > 0) {
+    const mustClear = isBossLevel(state.currentLevel, state.difficulty) || isDeathmatchLevel(state.currentLevel, state.difficulty)
+    if (mustClear && state.enemies.length > 0) {
       endGame(false, '보스/데스매치를 시간 내에 클리어하지 못했습니다!')
     } else {
       if (state.enemies.length > 0) {
@@ -1080,6 +1126,7 @@ export function createGame() {
     const timerInterval = Math.floor(1000 / state.gameSpeed)
     if (now - roundStartTime >= timerInterval && state.timeLeft > 0) {
       state.timeLeft--
+      advanceOneGameSecond()
       roundStartTime = now
       if (state.timeLeft <= 0) {
         if (state.isPrepPhase) {
@@ -1092,7 +1139,8 @@ export function createGame() {
         }
       }
     }
-    if (state.currentLevel > 200) {
+    const maxLevel = (DIFFICULTIES[state.difficulty] || DIFFICULTIES.normal).maxLevel
+    if (state.currentLevel > maxLevel) {
       endGame(true)
       return
     }
@@ -1103,19 +1151,24 @@ export function createGame() {
     if (!state.gameRunning) return
     state.currentLevel++
     state.isPrepPhase = false
-    state.timeLeft = isBossLevel(state.currentLevel) ? 300 : 90
+    state.timeLeft = isBossLevel(state.currentLevel, state.difficulty) ? 300 : 90
     state.roundTime = state.timeLeft
     roundStartTime = Date.now()
     spawning = false
     stopSpawnTimer()
     spawnedCount = 0
     spawnTarget = 0
-    const bossRound = isBossLevel(state.currentLevel)
-    const deathmatch = state.currentLevel >= 175 && state.currentLevel <= 198
+    const bossRound = isBossLevel(state.currentLevel, state.difficulty)
+    const deathmatch = isDeathmatchLevel(state.currentLevel, state.difficulty)
     addLog(`=== 라운드 ${state.currentLevel} 시작 ===`)
     if (bossRound) {
       addLog('⚠️ 보스 라운드! 보스 1마리 등장')
       spawnEnemy(true)
+      if (bossShield(state.currentLevel, state.difficulty) > 0) {
+        addLog(DIFFICULTIES[state.difficulty].shieldRegen
+          ? '🛡️ 쉴드를 깨야 체력을 깎을 수 있습니다. 깨진 쉴드는 5초 뒤 회복됩니다.'
+          : '🛡️ 쉴드를 깨야 체력을 깎을 수 있습니다.')
+      }
       state.timeLeft = 300
     } else if (deathmatch) {
       addLog('🔥 데스매치 구간! 강력한 적 8마리')
@@ -1144,7 +1197,17 @@ export function createGame() {
     ctx = element ? element.getContext('2d') : null
   }
 
-  function startGame() {
+  function startGame(difficultyId = 'normal') {
+    const diff = DIFFICULTIES[difficultyId] || DIFFICULTIES.normal
+    if (!state.account?.token) {
+      addLog('로그인 후 플레이할 수 있습니다.')
+      return
+    }
+    if (!state.account.unlocked?.[diff.id]) {
+      addLog(`${diff.name} 난이도는 아직 잠겨 있습니다.`)
+      return
+    }
+    state.difficulty = diff.id
     state.gold = 30
     state.currentLevel = 1
     state.timeLeft = 90
@@ -1177,12 +1240,21 @@ export function createGame() {
     gameLoop()
   }
 
-  function endGame(isWin, reason = '') {
+  async function endGame(isWin, reason = '') {
     state.gameRunning = false
     spawning = false
     stopSpawnTimer()
+    if (isWin && state.account?.token) {
+      try {
+        const profile = await reportClear(state.account.token, state.difficulty)
+        state.account = { token: state.account.token, ...profile }
+        addLog(`기록 저장: ${profile.displayName}`)
+      } catch {
+        addLog('클리어 기록을 저장하지 못했습니다.')
+      }
+    }
     const msg = isWin
-      ? '🎉 축하합니다! 200레벨 클리어! 게임 승리!'
+      ? `🎉 축하합니다! ${difficultyView().name} ${difficultyView().maxLevel}레벨 클리어! 게임 승리!`
       : `💀 게임 오버! ${reason || '적의 수가 너무 많습니다.'}`
     setTimeout(() => {
       if (typeof alert === 'function') alert(msg)
@@ -1243,7 +1315,10 @@ export function createGame() {
     performApocalypseCombo,
     performMobiusCombo,
     unitCard,
+    difficultyView,
     enemyHealthView,
+    advanceOneGameSecond,
+    damageEnemy,
     collectionView,
     claimCollection,
     performAttacks,

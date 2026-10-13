@@ -16,7 +16,7 @@ function onKey(event) {
 
 onMounted(() => {
   window.addEventListener('keydown', onKey)
-  console.log('%c[메이플 운빨 디펜스] 프로토타입 로드 완료. S키 = 소환, N키 = 다음 라운드', 'color:#0f0')
+  console.log('%c[도형 운빨 디펜스] 프로토타입 로드 완료. S키 = 소환, N키 = 다음 라운드', 'color:#0f0')
 })
 
 onUnmounted(() => {
@@ -29,8 +29,10 @@ onUnmounted(() => {
   <div class="container">
     <StartScreen
       v-show="!game.state.started"
-      @start="game.startGame()"
+      :account="game.state.account"
+      @start="game.startGame($event)"
       @explain="game.showExplanation()"
+      @account="game.state.account = $event"
     />
     <GameScreen :game="game" />
     <ExplanationModal v-if="game.state.explanationOpen" @close="game.closeExplanation()" />

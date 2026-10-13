@@ -28,23 +28,276 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.95);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: 100;
+    overflow: auto;
+    background:
+        radial-gradient(circle at 50% 18%, rgba(0, 255, 255, 0.16), transparent 32%),
+        radial-gradient(circle at 82% 80%, rgba(255, 0, 170, 0.16), transparent 28%),
+        linear-gradient(180deg, #070714 0%, #14081f 55%, #070714 100%);
+}
+
+.shape-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.geo {
+    position: absolute;
+    opacity: 0.55;
+}
+
+.geo-circle {
+    width: 140px;
+    height: 140px;
+    left: 8%;
+    top: 14%;
+    border: 3px solid #00ffff;
+    border-radius: 50%;
+    box-shadow: 0 0 24px rgba(0, 255, 255, 0.35);
+}
+
+.geo-triangle {
+    width: 120px;
+    height: 104px;
+    right: 10%;
+    top: 18%;
+    background: rgba(255, 204, 0, 0.12);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    filter: drop-shadow(0 0 12px rgba(255, 204, 0, 0.45));
+}
+
+.geo-square {
+    width: 96px;
+    height: 96px;
+    left: 14%;
+    bottom: 12%;
+    border: 3px solid #ff00aa;
+    transform: rotate(18deg);
+    box-shadow: 0 0 18px rgba(255, 0, 170, 0.35);
+}
+
+.geo-small.geo-circle {
+    width: 42px;
+    height: 42px;
+    left: auto;
+    right: 18%;
+    top: auto;
+    bottom: 16%;
+}
+
+.geo-small.geo-square {
+    width: 36px;
+    height: 36px;
+    left: auto;
+    right: 8%;
+    bottom: 28%;
+    top: auto;
+}
+
+.menu-card {
+    position: relative;
+    box-sizing: border-box;
+    width: min(560px, calc(100% - 32px));
+    margin: 16px;
+    padding: 28px 28px 22px;
+    background: rgba(10, 8, 24, 0.88);
+    border: 1px solid rgba(0, 255, 255, 0.35);
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.menu-mark {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.mark-circle,
+.mark-triangle,
+.mark-square {
+    width: 16px;
+    height: 16px;
+}
+
+.mark-circle {
+    border: 2px solid #00ffff;
+    border-radius: 50%;
+}
+
+.mark-triangle {
+    background: #ffcc00;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.mark-square {
+    background: #ff00aa;
+}
+
+.menu-kicker {
+    margin: 0 0 6px;
+    color: #7ef6ff;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
 }
 
 .game-title {
-    font-size: clamp(2rem, 8vw, 4.5rem);
+    margin: 0;
+    font-family: 'Black Han Sans', 'Noto Sans KR', sans-serif;
+    font-size: clamp(2.3rem, 7vw, 4.4rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: #f4f7ff;
+    text-shadow: 0 0 18px rgba(0, 255, 255, 0.28);
+}
+
+.tagline {
+    margin: 12px 0 0;
+    color: #c9d0df;
+    font-size: 1rem;
+}
+
+.menu-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 22px;
+}
+
+.menu-actions .btn {
+    margin: 0;
+    flex: 1 1 180px;
+}
+
+.difficulty-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.diff-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-height: 74px;
+    padding: 10px 12px;
+    text-align: left;
+    color: #e8edf8;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.diff-card.locked {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.auth-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 6px;
+}
+
+.auth-tab,
+.text-btn {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: transparent;
+    color: #d5dbeb;
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.auth-tab.active {
+    border-color: #00ffff;
+    color: #e8fdff;
+}
+
+.field-label {
+    color: #9aa6bd;
+    font-size: 0.78rem;
+}
+
+.auth-box input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #3d4660;
+    background: #0c1020;
+    color: white;
+    font: inherit;
+}
+
+.auth-error {
+    min-height: 1.2em;
+    margin: 0;
+    color: #ff8aa0;
+    font-size: 0.85rem;
+}
+
+.auth-submit {
+    margin: 0;
+}
+
+.account-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(0, 255, 255, 0.06);
+}
+
+.diff-lock {
+    color: #ffb020;
+    font-size: 0.75rem;
+}
+
+.diff-card.selected {
+    border-color: #00ffff;
+    box-shadow: inset 0 0 0 1px #00ffff;
+    background: rgba(0, 255, 255, 0.08);
+}
+
+.diff-name {
+    font-size: 1.05rem;
     font-weight: 700;
-    background: linear-gradient(90deg, #ff00aa, #00ffff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 30px rgba(255, 0, 170, 0.5);
-    margin-bottom: 20px;
+}
+
+.diff-meta {
+    color: #aeb6c9;
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+.diff-easy .diff-name { color: #8dffb0; }
+.diff-normal .diff-name { color: #7ef6ff; }
+.diff-hard .diff-name { color: #ffb020; }
+.diff-impossible .diff-name { color: #ff6d8a; }
+
+@media (max-width: 520px) {
+    .difficulty-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .btn {
@@ -73,6 +326,13 @@ body {
 .btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(255,0,170,0.4);
+}
+
+.btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+    transform: none;
+    box-shadow: none;
 }
 
 .game-screen {

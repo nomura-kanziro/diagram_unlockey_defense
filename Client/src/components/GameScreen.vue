@@ -34,9 +34,16 @@ function levelColor(card) {
         <span>💰 골드:</span>
         <span id="gold-display" class="stat-value">{{ game.state.gold.toFixed(1) }}</span>
       </div>
+      <div v-if="game.state.account" class="stat">
+        <span id="account-display" class="stat-value">{{ game.state.account.displayName }}</span>
+      </div>
+      <div class="stat">
+        <span>🎯 난이도:</span>
+        <span id="difficulty-display" class="stat-value">{{ game.difficultyView().name }}</span>
+      </div>
       <div class="stat">
         <span>📊 레벨:</span>
-        <span id="level-display" class="stat-value">{{ game.state.currentLevel }}</span>
+        <span id="level-display" class="stat-value">{{ game.state.currentLevel }}/{{ game.difficultyView().maxLevel }}</span>
       </div>
       <div class="stat">
         <span>⏱️ 라운드 시간:</span>
@@ -239,6 +246,9 @@ function levelColor(card) {
             일반 적: <strong>{{ game.enemyHealthView().normal }}</strong>
             <template v-if="game.enemyHealthView().bossOnField">
               <br>보스: <strong style="color:#ff6666">{{ game.enemyHealthView().bossOnField.health }} / {{ game.enemyHealthView().bossOnField.maxHealth }}</strong>
+              <template v-if="game.enemyHealthView().bossOnField.maxShield > 0">
+                <br>쉴드: <strong style="color:#7ecbff">{{ game.enemyHealthView().bossOnField.shield }} / {{ game.enemyHealthView().bossOnField.maxShield }}</strong>
+              </template>
             </template>
             <template v-else-if="game.enemyHealthView().showExpected">
               <br>보스 (예상): <strong style="color:#ff6666">{{ game.enemyHealthView().expected }}</strong>

@@ -1,5 +1,5 @@
 import { createGame } from '../src/game/engine.js'
-import { TIERS, TIER_ORDER, MAX_UNITS, SHAPES, SHAPE_COLLECTION_TIERS, shapeForTier } from '../src/game/constants.js'
+import { TIERS, TIER_ORDER, MAX_UNITS, SHAPES, SHAPE_COLLECTION_TIERS, shapeForTier, DIFFICULTIES, combatHealth, bossShield, bossOrdinal, bossLevelsFor } from '../src/game/constants.js'
 
 const failures = []
 function expect(name, actual, expected) {
@@ -324,6 +324,55 @@ seller.synthesizeMatchingUnits('square', 'normal')
 expect('사각형 일반 나머지', seller.state.units.filter(unit => unit.tier === 'normal' && unit.shape === 'square').length, 1)
 expect('사각형 레어 합성', seller.state.units.filter(unit => unit.tier === 'rare' && unit.shape === 'square').length, 3)
 expect('삼각형은 합성되지 않음', seller.state.units.filter(unit => unit.shape === 'triangle' && unit.tier === 'normal').length, 1)
+
+expect('쉬움 최대 레벨', DIFFICULTIES.easy.maxLevel, 150)
+expect('보통 최대 레벨', DIFFICULTIES.normal.maxLevel, 200)
+expect('어려움 최대 레벨', DIFFICULTIES.hard.maxLevel, 250)
+expect('불가능 최대 레벨', DIFFICULTIES.impossible.maxLevel, 300)
+expect('보통 1레벨 체력', combatHealth(1, 'normal', 'normal'), 10)
+expect('쉬움 1레벨 체력', combatHealth(1, 'normal', 'easy'), Math.floor(10 * 2 / 3))
+expect('어려움 1레벨 체력', combatHealth(1, 'normal', 'hard'), 15)
+expect('불가능 1레벨 체력', combatHealth(1, 'normal', 'impossible'), 20)
+expect('쉬움에 174보스 없음', bossLevelsFor('easy').includes(174), false)
+expect('어려움 5보스 쉴드', bossShield(122, 'hard'), 0)
+expect('어려움 6보스 순서', bossOrdinal(145, 'hard'), 6)
+const hardSixth = bossShield(145, 'hard')
+expect('어려움 6보스 쉴드', hardSixth, Math.floor(combatHealth(145, 'boss', 'hard') / 8))
+expect('불가능 3보스 쉴드', bossShield(87, 'impossible'), 0)
+expect('불가능 4보스 순서', bossOrdinal(104, 'impossible'), 4)
+expect('불가능 4보스 쉴드', bossShield(104, 'impossible'), Math.floor(combatHealth(104, 'boss', 'impossible') / 8))
+
+const shielded = createGame()
+shielded.state.difficulty = 'hard'
+shielded.state.currentLevel = 145
+shielded.spawnEnemy(true)
+const hardBoss = shielded.state.enemies[0]
+expect('어려움 보스 체력', hardBoss.health, combatHealth(145, 'boss', 'hard'))
+expect('어려움 보스 쉴드', hardBoss.shield, hardSixth)
+shielded.damageEnemy(hardBoss, 40)
+expect('쉴드가 체력을 막음', hardBoss.health, combatHealth(145, 'boss', 'hard'))
+expect('쉴드가 40 감소', hardBoss.shield, hardSixth - 40)
+hardBoss.shield = 10
+shielded.damageEnemy(hardBoss, 25)
+expect('쉴드 파괴 후 남은 피해', hardBoss.health, combatHealth(145, 'boss', 'hard') - 15)
+expect('쉴드 0', hardBoss.shield, 0)
+
+const regen = createGame()
+regen.state.difficulty = 'impossible'
+regen.state.currentLevel = 104
+regen.spawnEnemy(true)
+const impossibleBoss = regen.state.enemies[0]
+impossibleBoss.shield = 0
+for (let second = 0; second < 4; second++) regen.advanceOneGameSecond()
+expect('4초에는 쉴드 없음', impossibleBoss.shield, 0)
+regen.advanceOneGameSecond()
+expect('5초 뒤 쉴드 회복', impossibleBoss.shield, impossibleBoss.maxShield)
+
+const hardNoRegen = createGame()
+hardNoRegen.state.difficulty = 'hard'
+hardNoRegen.state.enemies.push({ shield: 0, maxShield: 80, health: 10, shieldDownFor: 0 })
+for (let second = 0; second < 5; second++) hardNoRegen.advanceOneGameSecond()
+expect('어려움 쉴드는 회복 없음', hardNoRegen.state.enemies[0].shield, 0)
 
 if (failures.length) {
   console.error(failures.join('\n'))
