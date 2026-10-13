@@ -2,6 +2,11 @@
 
 테스트한 사실만 적는다. 자동 테스트 스크립트는 아직 없다. 게임을 브라우저에서 다시 플레이하는 테스트는 이번 문서 작업의 범위가 아니다.
 
+## 2026-10-14 Devolop 병합
+
+- `Client`를 `Devolop`에 `--no-ff`로 병합했다. `docs`는 이미 `Client`에 들어 있어 추가 커밋이 없었다.
+- `master`는 `adbef34f08df944c22dc789d609d16f93982534e`에 그대로 있다.
+
 ## 2026-10-14 병합 취소
 
 - `git rev-parse`: `master`는 `adbef34f08df944c22dc789d609d16f93982534e`, `Client`는 `96bad8d40220b1f12795b2b4fdfd38bbfbc64351`이다. `origin/master`보다 `master`가 1커밋 앞에 있다.
