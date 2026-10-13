@@ -223,6 +223,31 @@ body {
 
 .upgrade-btn { background: #00aa66; color: white; }
 .sell-btn { background: #aa3333; color: white; }
+.sell-btn:disabled { background: #333; color: #777; cursor: default; }
+
+.sell-filters {
+    display: flex;
+    gap: 6px;
+}
+
+.sell-filters select {
+    flex: 1;
+    min-width: 0;
+    background: #111122;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 6px;
+}
+
+.sell-summary {
+    margin: 8px 0;
+    color: #ccc;
+}
+
+.sell-all-btn {
+    width: 100%;
+}
 
 .action-panel {
     background: #1a1a2e;

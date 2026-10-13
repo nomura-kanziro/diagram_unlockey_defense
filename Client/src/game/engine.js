@@ -487,6 +487,44 @@ export function createGame() {
     addLog(`${tier.name} 유닛 판매 (+${sellPrice}원)`)
   }
 
+  function matchingSellUnits(shape, tierKey) {
+    return state.units.filter(unit => unit.tier === tierKey && unitShape(unit) === shape)
+  }
+
+  function sellBundleView(shape, tierKey) {
+    const tier = TIERS[tierKey]
+    const count = matchingSellUnits(shape, tierKey).length
+    const price = tier && tier.sellable ? sellPriceOf(tierKey) : 0
+    return {
+      count,
+      total: count * price,
+      sellable: !!(tier && tier.sellable),
+      ready: !!(tier && tier.sellable && count > 0)
+    }
+  }
+
+  function sellMatchingUnits(shape, tierKey) {
+    const tier = TIERS[tierKey]
+    if (!tier || !SHAPE_LABEL[shape]) return
+    if (!tier.sellable) {
+      addLog('이 등급은 판매할 수 없습니다!')
+      return
+    }
+    const targets = matchingSellUnits(shape, tierKey)
+    if (targets.length === 0) {
+      addLog(`판매할 ${SHAPE_LABEL[shape]} ${tier.name}이 없습니다.`)
+      return
+    }
+    let total = 0
+    for (const unit of targets) {
+      total += sellPriceOf(unit.tier)
+      const index = state.units.indexOf(unit)
+      if (index !== -1) state.units.splice(index, 1)
+    }
+    state.gold += total
+    addLog(`${SHAPE_LABEL[shape]} ${tier.name} ${targets.length}개 판매 (+${total}원)`)
+  }
+
   function exchangeUnit(targetTier) {
     let cost
     let successRate
@@ -1120,6 +1158,8 @@ export function createGame() {
     ascendFromBox,
     synthesizeUnit,
     sellUnit,
+    sellBundleView,
+    sellMatchingUnits,
     ascendUnit,
     exchangeUnit,
     performApocalypseCombo,

@@ -1,12 +1,15 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { MAX_UNITS } from '../game/constants.js'
+import { MAX_UNITS, SHAPES, SHAPE_LABEL, TIER_ORDER, TIERS } from '../game/constants.js'
 
 const props = defineProps({
   game: { type: Object, required: true }
 })
 
 const canvasRef = ref(null)
+const sellShape = ref('circle')
+const sellTier = ref('normal')
+const sellableTiers = TIER_ORDER.filter(key => TIERS[key].sellable)
 
 onMounted(() => {
   props.game.attachCanvas(canvasRef.value)
@@ -109,6 +112,29 @@ function levelColor(card) {
             신화 → 대천 (250원, 60%)
           </button>
           <div class="panel-note">해당 등급 유닛 1개를 승천시킵니다.</div>
+        </div>
+
+        <div class="action-panel" id="sell-panel">
+          <div class="action-title">유닛 판매</div>
+          <div class="sell-filters">
+            <select id="sell-shape" v-model="sellShape" aria-label="판매 모양">
+              <option v-for="shape in SHAPES" :key="shape" :value="shape">{{ SHAPE_LABEL[shape] }}</option>
+            </select>
+            <select id="sell-tier" v-model="sellTier" aria-label="판매 등급">
+              <option v-for="key in sellableTiers" :key="key" :value="key">{{ TIERS[key].name }}</option>
+            </select>
+          </div>
+          <div class="sell-summary">
+            {{ SHAPE_LABEL[sellShape] }} {{ TIERS[sellTier].name }} {{ game.sellBundleView(sellShape, sellTier).count }}개
+            · {{ game.sellBundleView(sellShape, sellTier).total }}원
+          </div>
+          <button
+            id="sell-all-btn"
+            class="action-btn sell-btn sell-all-btn"
+            :disabled="!game.sellBundleView(sellShape, sellTier).ready"
+            @click="game.sellMatchingUnits(sellShape, sellTier)"
+          >전부 팔기</button>
+          <div class="panel-note">고른 모양과 등급만 판매합니다. 전설 이상은 판매할 수 없습니다.</div>
         </div>
 
         <div class="action-panel">

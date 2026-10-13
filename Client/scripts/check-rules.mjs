@@ -263,6 +263,27 @@ expect('뫼비우스 주 피해', splash.state.enemies[0].health, 9850)
 expect('뫼비우스 무한 스플래시', splash.state.enemies[1].health, 9880)
 expect('뫼비우스 범위 밖', splash.state.enemies[2].health, 10000)
 
+const seller = createGame()
+seller.state.gold = 30
+seller.state.units.push(
+  { id: 1, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 2, tier: 'normal', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 3, tier: 'normal', shape: 'triangle', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 4, tier: 'rare', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' },
+  { id: 5, tier: 'legendary', shape: 'square', level: 1, x: 0, y: 0, lastAttack: 0, color: '#fff' }
+)
+expect('판매 묶음 수', seller.sellBundleView('square', 'normal').count, 2)
+expect('판매 묶음 금액', seller.sellBundleView('square', 'normal').total, 12)
+seller.sellMatchingUnits('square', 'normal')
+expect('사각형 일반만 판매', seller.state.units.filter(unit => unit.tier === 'normal' && unit.shape === 'square').length, 0)
+expect('삼각형 일반 유지', seller.state.units.filter(unit => unit.shape === 'triangle').length, 1)
+expect('사각형 레어 유지', seller.state.units.filter(unit => unit.tier === 'rare').length, 1)
+expect('전설 유지', seller.state.units.filter(unit => unit.tier === 'legendary').length, 1)
+expect('묶음 판매 골드', seller.state.gold, 42)
+seller.sellMatchingUnits('square', 'legendary')
+expect('전설은 묶음 판매 불가', seller.state.units.filter(unit => unit.tier === 'legendary').length, 1)
+expect('거절 후 골드', seller.state.gold, 42)
+
 if (failures.length) {
   console.error(failures.join('\n'))
   process.exit(1)
